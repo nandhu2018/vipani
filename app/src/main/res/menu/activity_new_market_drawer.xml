@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/add_user"
+            android:icon="@drawable/avatar"
+            android:title="Add User" />
+        <item
+            android:id="@+id/add_domestic"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Add Domestic" />
+        <item
+            android:id="@+id/add_news"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Add News" />
+        <item
+            android:id="@+id/add_category"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Add Category" />
+        <item
+            android:id="@+id/extend_validity"
+            android:icon="@drawable/ic_menu_manage"
+            android:visible="false"
+            android:title="Extend Validity" />
+    </group>
+
+    <!--<item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Send" />
+        </menu>
+    </item>-->
+
+</menu>

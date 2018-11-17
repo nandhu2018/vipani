@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:context=".fragments.AddUser"
+    >
+
+    <!--<LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full name"
+            android:padding="10dp">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/first_et"
+                android:singleLine="true"
+                android:maxLines="1"/>
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mobile number"
+            android:padding="10dp">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/second_et"
+                android:singleLine="true"
+                android:maxLines="1"/>
+        </android.support.design.widget.TextInputLayout>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/add_button"/>
+    </LinearLayout>-->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <TextView
+            android:id="@+id/head_text_add_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:gravity="center_horizontal"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:text="Enter new User details"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"
+            android:layout_alignParentTop="true"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:layout_below="@+id/head_text_add_user">
+
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/mobile"
+                android:layout_width="match_parent"
+                android:textColorHint="#000"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="#000"
+                    android:hint="Mobile"
+                    android:inputType="number"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    android:textSize="16dp" />
+
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:textColorHint="#000"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="#000"
+                    android:hint="Password"
+                    android:inputType="number"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    android:textSize="16dp" />
+
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/days"
+                android:layout_width="match_parent"
+                android:textColorHint="#000"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="#000"
+                    android:hint="Days"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    android:textSize="16dp" />
+
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/refered"
+                android:layout_width="match_parent"
+                android:textColorHint="#000"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="#000"
+                    android:focusableInTouchMode="false"
+                    android:hint="Refered By"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    android:textSize="16dp" />
+
+            </android.support.design.widget.TextInputLayout>
+            <Button
+                android:id="@+id/adduser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:backgroundTint="@color/colorAccent"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="Save"
+                android:layout_gravity="end"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="20dp"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+</FrameLayout>
+        <!--<?xml version="1.0" encoding="utf-8"?>
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:background="#000"
+            android:layout_height="match_parent"
+            tools:context="com.gigaappz.vipani.activity.Pinreg">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="25dp"
+                    android:gravity="center_horizontal"
+                    android:paddingLeft="40dp"
+                    android:paddingRight="40dp"
+                    android:text="@string/msg_pin"
+                    android:textColor="@android:color/white"
+                    android:textSize="16dp" />
+
+
+                <EditText
+                    android:id="@+id/pin1"
+                    android:layout_width="120dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/white"
+                    android:fontFamily="sans-serif-light"
+                    android:digits="1234567890"
+                    android:inputType="number"
+                    android:gravity="center"
+                    android:hint=" Enter Pin"/>
+
+                <EditText
+                    android:id="@+id/pin2"
+                    android:layout_width="120dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:digits="1234567890"
+                    android:inputType="number"
+                    android:gravity="center"
+                    android:background="@android:color/white"
+                    android:fontFamily="sans-serif-light"
+                    android:hint=" Re-enter Pin"/>
+                <Button
+                    android:id="@+id/btn_verify_pin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="25dp"
+                    android:background="@color/colorPrimaryDark1"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:text="@string/lbl_submit"
+                    android:textColor="@android:color/white"
+                    android:textSize="14dp" />
+            </LinearLayout>
+        </RelativeLayout>-->

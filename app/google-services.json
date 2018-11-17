@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "195398606553",
+    "firebase_url": "https://vipani-da898.firebaseio.com",
+    "project_id": "vipani-da898",
+    "storage_bucket": "vipani-da898.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195398606553:android:fd7e683398e8412f",
+        "android_client_info": {
+          "package_name": "com.gigaappz.vipani"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "195398606553-8ljsu4ecj677is6scfavleu68krcnbg2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gigaappz.vipani",
+            "certificate_hash": "9b1d47fd1f621ee42bdb093c5ac8fb75bfe6e1cc"
+          }
+        },
+        {
+          "client_id": "195398606553-gfdcduvuolkv4ancfqp216n54eg2dasf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRW1lOHZq9JGkJjSFjHhkS1Ne05IkQ-2A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "195398606553-gfdcduvuolkv4ancfqp216n54eg2dasf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

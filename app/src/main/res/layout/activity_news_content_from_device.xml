@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.gigaappz.vipani.activity.NewsContentFromDevice">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/head_text_news_content_from_device"
+                android:text="This is the Heading"
+                android:gravity="center"
+                android:padding="10dp"
+                android:textSize="20sp"
+                android:textColor="@color/textColorBlack"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="150dp"
+                android:id="@+id/image_news_content_from_device"
+                android:src="@drawable/no_thumbnail"
+                android:layout_gravity="center"
+                android:padding="10dp"/>
+
+            <com.codesgood.views.JustifiedTextView
+                android:id="@+id/content_text_news_content_from_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textColor="@android:color/black"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
