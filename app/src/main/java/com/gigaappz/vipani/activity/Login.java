@@ -104,14 +104,16 @@ public class Login extends AppCompatActivity {
                     }
                     switch (response.getString("responseCode")){
                         case "000":IS_ADMIN=false;
-                            if (response.getInt("daysRemaining")>10){
+                           /* if (response.getInt("daysRemaining")>10){
                                 startActivity(new Intent(Login.this,NewMarketActivity.class));
                                 finish();
                             }else if (response.getInt("daysRemaining")<10&response.getInt("daysRemaining")>0){
                                 showpaymentalertlessten(response.getInt("daysRemaining"));
                             }else {
                                 showpaymentalert();
-                            }
+                            }*/
+                            startActivity(new Intent(Login.this,NewMarketActivity.class));
+                            finish();
                             break;
                         case "010":IS_ADMIN=false;
                             Toasty.error(Login.this, "Invalid credentials", Toast.LENGTH_SHORT, true).show();

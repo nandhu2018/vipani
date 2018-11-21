@@ -197,7 +197,7 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
                             model.setId("");
                         }
 
-                        model.setProfit(Integer.parseInt(domcategory.getString("price_difference"))>=0);
+                        model.setProfit(Double.parseDouble(domcategory.getString("price_difference"))>=0);
                         model.setHeadText(domcategory.getString("main_title"));
                         model.setSubHeadText(domcategory.getString("sub_title"));
                         model.setValueText(domcategory.getString("price"));
@@ -283,7 +283,7 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
                             model.setId("");
                         }
 
-                        model.setProfit(Integer.parseInt(domcategory.getString("price_difference"))>=0);
+                        model.setProfit(Double.parseDouble(domcategory.getString("price_difference"))>=0);
                         model.setHeadText(domcategory.getString("main_title"));
                         model.setSubHeadText(domcategory.getString("sub_title"));
                         model.setValueText(domcategory.getString("price"));

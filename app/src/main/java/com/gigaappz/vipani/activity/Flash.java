@@ -132,14 +132,16 @@ public class Flash extends AppCompatActivity {
                     switch (response.getString("responseCode")) {
                         case "000":
                             IS_ADMIN = false;
-                            if (response.getInt("daysRemaining") > 10) {
+                            /*if (response.getInt("daysRemaining") > 10) {
                                 startActivity(new Intent(Flash.this, NewMarketActivity.class));
                                 finish();
                             } else if (response.getInt("daysRemaining") < 10 & response.getInt("daysRemaining") > 0) {
                                 showpaymentalertlessten(response.getInt("daysRemaining"));
                             } else {
                                 showpaymentalert();
-                            }
+                            }*/
+                            startActivity(new Intent(Flash.this, NewMarketActivity.class));
+                            finish();
                             break;
                         case "010":
                             IS_ADMIN = false;
