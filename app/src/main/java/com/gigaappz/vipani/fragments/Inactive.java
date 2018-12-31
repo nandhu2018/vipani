@@ -133,7 +133,7 @@ public class Inactive extends Fragment implements UserLongPressListener {
                 .setCancellable(false)
                 .setLabel("Loading Data")
                 .show();
-        String urlJsonObj = "http://tradewatch.xyz/blockedUsers.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/blockedUsers.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
@@ -193,7 +193,7 @@ public class Inactive extends Fragment implements UserLongPressListener {
 
                         String dayleft = getDaysBetweenDates(dateToStr, payexp);
                         String reason=users.getString("disable_comment");
-                        personUtilsList.add(new PersonUtils(users.getString("user_id"), reason, joined, payexp, paydate, dayleft + " Days Left"));
+                        personUtilsList.add(new PersonUtils(users.getString("mobile"), reason, joined, payexp, paydate, dayleft + " Days Left",users.getString("id"),users.getString("name"),users.getString("place"),users.getString("shop_name")));
                     }
                     mAdapter.notifyDataSetChanged();
                 }
@@ -254,11 +254,11 @@ public class Inactive extends Fragment implements UserLongPressListener {
 
     public void unblockuser(final String token,String userid) {
 
-        String urlJsonObj = "http://tradewatch.xyz/unblockUser.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/unblockUser.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
-            obj.put("user_id", userid);
+            obj.put("id", userid);
 
         } catch (JSONException e) {
         }
@@ -307,7 +307,7 @@ public class Inactive extends Fragment implements UserLongPressListener {
                 .OnPositiveClicked(new FancyGifDialogListener() {
                     @Override
                     public void OnClick() {
-                        unblockuser("g*Rg3I0",personUtilsList.get(position).getPersonName());
+                        unblockuser("g*Rg3I0",personUtilsList.get(position).getId());
                         //Toast.makeText(MainActivity.this,"Ok",Toast.LENGTH_SHORT).show();
                         /*mAdapter.removeItem(position);
                         mAdapter.notifyDataSetChanged();

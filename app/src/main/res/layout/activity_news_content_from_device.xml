@@ -5,7 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.gigaappz.vipani.activity.NewsContentFromDevice">
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        android:layout_height="40dp"
+        android:src="@drawable/back"/>
     <ScrollView
+        android:layout_below="@id/back"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
@@ -20,20 +29,23 @@
                 android:text="This is the Heading"
                 android:gravity="center"
                 android:padding="10dp"
+                android:textStyle="bold"
                 android:textSize="20sp"
                 android:textColor="@color/textColorBlack"/>
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="150dp"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
                 android:id="@+id/image_news_content_from_device"
                 android:src="@drawable/no_thumbnail"
                 android:layout_gravity="center"
-                android:padding="10dp"/>
+                android:scaleType="fitXY"
+                android:padding="5dp"/>
 
-            <com.codesgood.views.JustifiedTextView
+            <TextView
                 android:id="@+id/content_text_news_content_from_device"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="fill_horizontal"
                 android:padding="10dp"
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />

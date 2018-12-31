@@ -19,7 +19,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.gigaappz.vipani.AppController;
 import com.gigaappz.vipani.R;
+import com.gigaappz.vipani.models.Domestic;
 import com.gigaappz.vipani.utils.AppConstants;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,10 +31,12 @@ import org.json.JSONObject;
 import es.dmoral.toasty.Toasty;
 
 public class AddDomestic extends AppCompatActivity {
-    TextInputLayout type,subhead,value;
+    TextInputLayout type,subhead,value,remarks;
     Button save;
     SharedPreferences sharedPreferences;
     ArrayAdapter<String> arrayAdapter;
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +44,7 @@ public class AddDomestic extends AppCompatActivity {
         type=(TextInputLayout) findViewById(R.id.mainhead);
         subhead=(TextInputLayout) findViewById(R.id.subhead);
         value=(TextInputLayout) findViewById(R.id.currentrate);
+        remarks=(TextInputLayout) findViewById(R.id.remark);
         save=(Button) findViewById(R.id.save);
         arrayAdapter = new ArrayAdapter<String>(AddDomestic.this, android.R.layout.select_dialog_singlechoice);
         sharedPreferences=getSharedPreferences("token", Context.MODE_PRIVATE);
@@ -49,7 +55,7 @@ public class AddDomestic extends AppCompatActivity {
                 if (type.getEditText().getText().toString().equalsIgnoreCase("")){
                     type.getEditText().setError("Select title");
                 }else {
-                    addDomestic("g*Rg3I0", type.getEditText().getText().toString(), subhead.getEditText().getText().toString(), value.getEditText().getText().toString());
+                    addDomestic("g*Rg3I0", type.getEditText().getText().toString(), subhead.getEditText().getText().toString(), value.getEditText().getText().toString(),remarks.getEditText().getText().toString());
                 }
             }
         });
@@ -126,7 +132,7 @@ public class AddDomestic extends AppCompatActivity {
     }
     public void getdomesticcategorylist(final String token) {
 
-        String urlJsonObj = "http://tradewatch.xyz/getDomesticCategories.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/getDomesticCategories.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
@@ -191,15 +197,16 @@ public class AddDomestic extends AppCompatActivity {
 
 
     }
-    public void addDomestic(final String token,String title,String sub,String price) {
+    public void addDomestic(final String token, final String title, final String sub, final String price,final String remarks) {
 
-        String urlJsonObj = "http://tradewatch.xyz/updateDomesticPrice.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/updateDomesticPrice.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
             obj.put("main_title", title);
             obj.put("sub_title", sub);
             obj.put("price", price);
+            obj.put("udf1", remarks);
 
         } catch (JSONException e) {
         }
@@ -214,12 +221,20 @@ public class AddDomestic extends AppCompatActivity {
                 try {
 
                     if (response.getString("responseStatus").equalsIgnoreCase("true")){
+                        mFirebaseInstance = FirebaseDatabase.getInstance();
+                        mFirebaseDatabase = mFirebaseInstance.getReference("domestic");
+                        Domestic name=new Domestic();
+                        name.setName(title+""+price+""+sub);
+                        mFirebaseDatabase.setValue(name);
                         Toasty.success(AddDomestic.this, "Domestic value updated", Toast.LENGTH_SHORT, true).show();
                         startActivity(new Intent(AddDomestic.this,NewMarketActivity.class));
                         finish();
+                    }else {
+                        Toast.makeText(AddDomestic.this, ""+response.getString("responseMessage"), Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (JSONException e) {
+                    Toasty.error(AddDomestic.this, "Domestic value updation failed", Toast.LENGTH_SHORT, true).show();
                     // progressBar.setVisibility(View.GONE);
                 }
 
@@ -228,6 +243,7 @@ public class AddDomestic extends AppCompatActivity {
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                Toasty.error(AddDomestic.this, "Domestic value updation failed", Toast.LENGTH_SHORT, true).show();
                 //progressBar.setVisibility(View.GONE);
                 // hide the progress dialog
             }

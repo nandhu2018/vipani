@@ -21,6 +21,7 @@ import com.gigaappz.vipani.fragments.AddUser;
 import com.gigaappz.vipani.fragments.ContactUsTab;
 import com.gigaappz.vipani.fragments.DomesticTab;
 import com.gigaappz.vipani.fragments.ForeignTab;
+import com.gigaappz.vipani.fragments.Foreignweb;
 import com.gigaappz.vipani.fragments.Inactive;
 import com.gigaappz.vipani.fragments.NewsTab;
 import com.gigaappz.vipani.fragments.UsersTab;
@@ -81,7 +82,7 @@ public class MarketActivity extends AppCompatActivity implements View.OnClickLis
         contactText= findViewById(R.id.contact_text);
         TextView userText   = findViewById(R.id.user_text);
         TextView appTitleText   = findViewById(R.id.app_title_text);
-        fab             = findViewById(R.id.fab_base);
+        fab             = findViewById(R.id.fab2);
 //        adminPanel      = findViewById(R.id.admin_panel);
 
 //        initViewAdminPanel();
@@ -212,7 +213,7 @@ public class MarketActivity extends AppCompatActivity implements View.OnClickLis
                 fourthButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
 
                 adapter.addFragment(new DomesticTab(), "Domestic");
-                adapter.addFragment(new ForeignTab(), "Foreign");
+                adapter.addFragment(new Foreignweb(), "Foreign");
                 tabLayout.setVisibility(View.VISIBLE);
                 if (IS_ADMIN) {
                     fab.setVisibility(View.VISIBLE);
@@ -331,7 +332,7 @@ public class MarketActivity extends AppCompatActivity implements View.OnClickLis
 
                 setUpViewPager(FOURTH_BUTTON);
                 break;
-            case R.id.fab_base:
+            case R.id.fab2:
 
                 setUpViewPager(FAB);
                 break;

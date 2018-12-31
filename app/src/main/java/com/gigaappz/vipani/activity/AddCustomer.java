@@ -34,12 +34,14 @@ import in.galaxyofandroid.spinerdialog.OnSpinerItemClick;
 import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
 public class AddCustomer extends AppCompatActivity {
-    TextInputLayout mobile,password,days,refered;
+    TextInputLayout mobile,password,days,refered,name,company,place;
     Button adduser;
     int day, month, year;
     KProgressHUD hud;
     ArrayList<String> items=new ArrayList<>();
+    ArrayList<Integer> ids=new ArrayList<>();
     SpinnerDialog spinnerDialog;
+    String idref="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,9 @@ public class AddCustomer extends AppCompatActivity {
         password=(TextInputLayout) findViewById(R.id.password);
         days=(TextInputLayout) findViewById(R.id.days);
         refered=(TextInputLayout) findViewById(R.id.refered);
+        name=(TextInputLayout) findViewById(R.id.name);
+        company=(TextInputLayout) findViewById(R.id.company);
+        place=(TextInputLayout) findViewById(R.id.place);
         adduser=(Button)findViewById(R.id.adduser);
 
         /*items.add("Mumbai");
@@ -72,6 +77,7 @@ public class AddCustomer extends AppCompatActivity {
             public void onClick(String item, int position) {
                 //Toast.makeText(AddCustomer.this, item + "  " + position+"", Toast.LENGTH_SHORT).show();
                 refered.getEditText().setText(item);
+                idref=ids.get(position).toString();
                 //selectedItems.setText(item + " Position: " + position);
             }
         });
@@ -89,14 +95,13 @@ public class AddCustomer extends AppCompatActivity {
                         .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                         .setCancellable(false)
                         .show();
-                addUser("g*Rg3I0",mobile.getEditText().getText().toString(),password.getEditText().getText().toString(),days.getEditText().getText().toString(),refered.getEditText().getText().toString());
-                hud.dismiss();
+                addUser("g*Rg3I0",mobile.getEditText().getText().toString(),password.getEditText().getText().toString(),days.getEditText().getText().toString(),idref);
+                //hud.dismiss();
 
                 /*UsersTab.myListener.updateView(true,mobile.getEditText().getText().toString());
                 AppConstants.SELECTED_TAB =2;
                 // TODO: 09-Oct-18 updated*/
-                startActivity(new Intent(AddCustomer.this,NewMarketActivity.class));
-                finish();
+
             }
         });
         /*days.getEditText().setOnClickListener(new View.OnClickListener() {
@@ -147,7 +152,8 @@ public class AddCustomer extends AppCompatActivity {
     private void getallcontacts(){
         SharedPreferences sharedPreferences=getSharedPreferences("token", Context.MODE_PRIVATE);
 
-        String url="http://tradewatch.xyz/allMobileNumbers.php";
+        //String url="http://tradewatch.xyz/api/allMobileNumbers.php";
+        String url="http://tradewatch.xyz/api/userDetails.php";
         JSONObject object=new JSONObject();
         try {
             //object.put("auth",sharedPreferences.getString("token",""));
@@ -163,6 +169,7 @@ public class AddCustomer extends AppCompatActivity {
                     for (int i=0; i<cast.length(); i++) {
                         JSONObject mobile = cast.getJSONObject(i);
                         items.add(mobile.getString("mobile_no"));
+                        ids.add(mobile.getInt("id"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -180,11 +187,16 @@ public class AddCustomer extends AppCompatActivity {
 
     public void addUser(final String token,String mobile,String password,String days,String refby) {
 
-        String urlJsonObj = "http://tradewatch.xyz/addUsersAdmin.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/addUsersAdmin.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
-            obj.put("user_id", mobile);
+            obj.put("name", name.getEditText().getText().toString());
+            obj.put("mobile", mobile);
+            obj.put("shop_name", company.getEditText().getText().toString());
+            obj.put("district", "");
+            obj.put("place", place.getEditText().getText().toString());
+            obj.put("pincode", "");
             obj.put("password", password);
             obj.put("days", days);
             obj.put("ref_by", refby);
@@ -200,15 +212,22 @@ public class AddCustomer extends AppCompatActivity {
 
 
                 try {
-
+                    if (hud.isShowing()){
+                        hud.dismiss();
+                    }
                     if (response.getString("responseStatus").equalsIgnoreCase("true")){
                         Toasty.success(AddCustomer.this, "User Added", Toast.LENGTH_SHORT, true).show();
+                        startActivity(new Intent(AddCustomer.this,NewMarketActivity.class));
                         finish();
                     }else{
                         Toasty.error(AddCustomer.this, "User Already Exists", Toast.LENGTH_SHORT, true).show();
                     }
 
+
                 } catch (JSONException e) {
+                    if (hud.isShowing()){
+                        hud.dismiss();
+                    }
                     // progressBar.setVisibility(View.GONE);
                 }
 
@@ -217,6 +236,9 @@ public class AddCustomer extends AppCompatActivity {
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                if (hud.isShowing()){
+                    hud.dismiss();
+                }
                 //progressBar.setVisibility(View.GONE);
                 // hide the progress dialog
             }

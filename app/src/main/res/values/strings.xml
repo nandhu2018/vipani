@@ -15,16 +15,32 @@
     <string name="lbl_enter_otp">Enter OTP</string>
     <string name="lbl_submit">SUBMIT</string>
     <string name="lbl_pin">Enter 4 Digit Pin</string>
-    <string name="msg_pin">Enter 4 Digit Pin which can be used later to sign in to app.</string>
+    <string name="msg_pin">Enter Following details</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="need_a_new_account">NEED A NEW ACCOUNT ?</string>
-    <string name="enter_new_domestic_details">Enter new Domestic details</string>
+    <string name="enter_new_domestic_details">Enter International details</string>
     <string name="type">Type</string>
     <string name="title_activity_new_market">NewMarketActivity</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
+    <string name="contactdetails">Vipani\nMarket Reportes\nPepper Exchange Building\nMattancherry\nCochin 2\nMobile:9072344488/9072344499</string>
+    <string-array name="district">
+        <item>Alappuzha</item>
+        <item>Malappuram</item>
+        <item>Thiruvananthapuram</item>
+        <item>Ernakulam</item>
+        <item>Thrissur</item>
+        <item>Kozhikode</item>
+        <item>Palakkad</item>
+        <item>Kollam</item>
+        <item>Kannur</item>
+        <item>Kottayam</item>
+        <item>Kasaragod</item>
+        <item>Pathanamthitta</item>
+        <item>Idukki</item>
+        <item>Wayanad</item>
+    </string-array>
 
 </resources>

@@ -5,7 +5,10 @@ import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,6 +21,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.gigaappz.vipani.AppController;
 import com.gigaappz.vipani.ConnectivityReceiver;
 import com.gigaappz.vipani.R;
+import com.google.android.gms.common.api.Status;
 import com.kaopiz.kprogresshud.KProgressHUD;
 
 import org.json.JSONException;
@@ -26,47 +30,71 @@ import org.json.JSONObject;
 import es.dmoral.toasty.Toasty;
 
 public class Pinreg extends AppCompatActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
-    EditText pin1,pin2;
+    EditText pin1,name,company,place,pincode;
     Button submit;
     KProgressHUD hud;
+    AutoCompleteTextView district;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pinreg);
         pin1=(EditText) findViewById(R.id.pin1);
-        pin2=(EditText) findViewById(R.id.pin2);
+        name=(EditText) findViewById(R.id.name);
+        company=(EditText) findViewById(R.id.company);
+        place=(EditText) findViewById(R.id.place);
+        district=(AutoCompleteTextView) findViewById(R.id.district);
+        pincode=(EditText) findViewById(R.id.pincode);
         submit=findViewById(R.id.btn_verify_pin);
-
+        String[] districts = getResources().getStringArray(R.array.district);
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, districts);
+        district.setAdapter(adapter);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (pin1.getText().toString().equalsIgnoreCase(pin2.getText().toString())||pin1.getText().length()==4){
-                    submit.setEnabled(false);
-                    hud = KProgressHUD.create(Pinreg.this)
-                            .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                            .setCancellable(false)
-                            .setLabel("Registering Pin")
-                            .show();
-                    makeJsonRequest(getIntent().getStringExtra("mobile"),pin1.getText().toString());
-                }else{
-                    if (hud.isShowing()){
-                        hud.dismiss();
+                if (pin1.getText().length()==4){
+                    if (name.getText().toString().equalsIgnoreCase("")){
+                        name.setError("Enter Name");
+                    }else if (company.getText().toString().equalsIgnoreCase("")){
+                        company.setError("Enter Company");
+                    }else if (place.getText().toString().equalsIgnoreCase("")){
+                        place.setError("Enter Place");
+                    }else if (district.getText().toString().equalsIgnoreCase("")){
+                        district.setError("Enter District");
+                    }else if (pincode.getText().toString().equalsIgnoreCase("")){
+                        pincode.setError("Enter Pincode");
+                    }else {
+                        submit.setEnabled(false);
+                        hud = KProgressHUD.create(Pinreg.this)
+                                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                                .setCancellable(false)
+                                .setLabel("Registering Pin")
+                                .show();
+                        makeJsonRequest(getIntent().getStringExtra("mobile"),pin1.getText().toString(),name.getText().toString(),company.getText().toString(),place.getText().toString());
                     }
+
+                }else{
+
                     Toasty.error(Pinreg.this, "Enter 4 digit pin correctly", Toast.LENGTH_SHORT, true).show();
                 }
             }
         });
+
     }
 
-    public void makeJsonRequest(final String mobile, final String pin) {
+    public void makeJsonRequest(final String mobile, final String pin, final String name, final String company, final String place) {
 
-        String urlJsonObj = "http://tradewatch.xyz/signUpStep1.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/signUpStep1.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", "qp^&#ss");
-            obj.put("user_id", mobile);
+            obj.put("name", name);
+            obj.put("mobile", mobile);
+            obj.put("shop_name", company);
+            obj.put("district", district.getText().toString());
+            obj.put("place", place);
+            obj.put("pincode", pincode.getText().toString());
             obj.put("password", pin);
-
 
         } catch (JSONException e) {
         }
@@ -98,6 +126,7 @@ public class Pinreg extends AppCompatActivity implements ConnectivityReceiver.Co
                         if (hud.isShowing()){
                             hud.dismiss();
                         }
+                        submit.setEnabled(true);
                         Toasty.error(Pinreg.this, "Failed", Toast.LENGTH_SHORT, true).show();
                     }
                     /*SharedPreferences.Editor editor = getSharedPreferences("login", MODE_PRIVATE).edit();

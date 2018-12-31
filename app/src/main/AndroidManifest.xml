@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.gigaappz.vipani">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <!-- <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:name=".AppController"
@@ -17,8 +15,21 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/vipani"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme1">
+        android:theme="@style/AppTheme1"
+        tools:replace="android:theme">
 
+        <!--
+        <service android:name=".reciever.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service android:name=".reciever.FirebaseIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+        -->
         <!--
             <receiver android:exported="false"
             android:name=".CheckConnectivity" >
@@ -53,7 +64,7 @@
             -->
         </activity>
         <activity
-            android:name=".activity.Main2Activity"
+            android:name=".activity.Registration"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.MainActivity"
@@ -86,6 +97,9 @@
             android:name=".activity.AddDomestic"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.AddForeign"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.NewsContent"
             android:screenOrientation="portrait" />
         <activity
@@ -94,10 +108,14 @@
         <activity
             android:name=".activity.NewMarketActivity"
             android:label="@string/title_activity_new_market"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme1"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".activity.NewsContentFromDevice" />
+        <activity android:name=".activity.SearchResult" />
+        <activity android:name=".activity.Settings" />
+        <activity android:name=".activity.Newsedit"></activity>
     </application>
 
 </manifest>

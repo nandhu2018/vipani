@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,7 +16,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.gigaappz.vipani.AppController;
 import com.gigaappz.vipani.R;
-import com.google.android.gms.common.internal.ISignInButtonCreator;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
@@ -58,7 +56,7 @@ public class Login extends AppCompatActivity {
         forgotpsw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Login.this,Main2Activity.class));
+                startActivity(new Intent(Login.this,Registration.class));
                 finish();
             }
         });
@@ -66,11 +64,11 @@ public class Login extends AppCompatActivity {
 
     public void makeJsonRequest(final String mobile, final String pin) {
 
-        String urlJsonObj = "http://tradewatch.xyz/login.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/login.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", "qp^&#ss");
-            obj.put("user_id", mobile);
+            obj.put("mobile", mobile);
             obj.put("password", pin);
 
 

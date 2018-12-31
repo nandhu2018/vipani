@@ -2,21 +2,20 @@ package com.gigaappz.vipani.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +24,8 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -34,14 +35,19 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.gigaappz.vipani.AppController;
 import com.gigaappz.vipani.R;
-import com.gigaappz.vipani.activity.AddDomestic;
-import com.gigaappz.vipani.activity.Login;
-import com.gigaappz.vipani.activity.NewMarketActivity;
 import com.gigaappz.vipani.adapters.DomesticRecyclerAdapter;
+import com.gigaappz.vipani.interfaces.CustomOnClick;
 import com.gigaappz.vipani.interfaces.DomesticLongPressListener;
+import com.gigaappz.vipani.models.Domestic;
 import com.gigaappz.vipani.models.DomesticValueModel;
-import com.gigaappz.vipani.utils.AppConstants;
+import com.gigaappz.vipani.models.Domesticflash;
 import com.gigaappz.vipani.utils.BottomOffsetDecoration;
+import com.gigaappz.vipani.utils.ItemMoveCallback;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
@@ -53,21 +59,21 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import es.dmoral.toasty.Toasty;
 
 import static com.gigaappz.vipani.utils.AppConstants.IS_ADMIN;
 
 
-public class DomesticTab extends Fragment implements DomesticLongPressListener {
+public class DomesticTab extends Fragment implements DomesticLongPressListener,CustomOnClick {
     SharedPreferences sharedPreferences;
     KProgressHUD hud;
     String urlJsonObj="";
     SwipeRefreshLayout refreshLayout;
+    ArrayList<String> listItems=new ArrayList<String>();
+    private DatabaseReference mFirebaseDatabase,mFirebaseDatabase1;
+    private FirebaseDatabase mFirebaseInstance;
+    ArrayAdapter<String> recentupdate;
     public DomesticTab(){
         //Empty Constructor
     }
@@ -79,6 +85,7 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
         context = getActivity().getApplicationContext();
     }
 
+
     private RecyclerView recyclerView;
     @Nullable
     @Override
@@ -86,6 +93,42 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
         View rootView   = inflater.inflate(R.layout.domestic_tab, container, false);
         recyclerView    = rootView.findViewById(R.id.domestic_recycler);
         refreshLayout   = rootView.findViewById(R.id.domestic_tab_refresh_layout);
+        recentupdate = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
+
+
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+
+
+        mFirebaseDatabase = mFirebaseInstance.getReference("domestic");
+
+        mFirebaseDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Domestic domestic=dataSnapshot.getValue(Domestic.class);
+                initList();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        mFirebaseDatabase1 = mFirebaseInstance.getReference("domesticupdate");
+
+       /* mFirebaseDatabase1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    Domesticflash domestic=dataSnapshot.getValue(Domesticflash.class);
+                    domesticflash("g*Rg3I0",domestic.getId());
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });*/
         sharedPreferences=getActivity().getSharedPreferences("token", Context.MODE_PRIVATE);
 
         float offset = context.getResources().getDimension(R.dimen.recycler_bottom_offset);
@@ -93,7 +136,7 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
         recyclerView.addItemDecoration(offsetDecoration);
 
         initList();
-        final Handler handler = new Handler();
+        /*final Handler handler = new Handler();
         Timer timer = new Timer();
         TimerTask doAsynchronousTask = new TimerTask() {
             @Override
@@ -111,22 +154,101 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
                 });
             }
         };
-        timer.schedule(doAsynchronousTask, 0, 10000);
+        timer.schedule(doAsynchronousTask, 0, 10000);*/
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 initList();
             }
         });
+
+
+        if (IS_ADMIN ){
+            if (isNetworkConnected()){
+            ItemTouchHelper.Callback ithCallback = new ItemTouchHelper.Callback() {
+                //and in your imlpementaion of
+                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                    // get the viewHolder's and target's positions in your adapter data, swap them
+                    //Collections.swap(domesticValueModels, viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                    // and notify the adapter that its dataset has changed
+                    if (viewHolder.getAdapterPosition() < target.getAdapterPosition()) {
+                        for (int i = viewHolder.getAdapterPosition(); i < target.getAdapterPosition(); i++) {
+                            Collections.swap(domesticValueModels, i, i + 1);
+                        }
+                    } else {
+                        for (int i = viewHolder.getAdapterPosition(); i > target.getAdapterPosition(); i--) {
+                            Collections.swap(domesticValueModels, i, i - 1);
+                        }
+                    }
+                    adapter.notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                    changeDomesticOrder("g*Rg3I0",domesticValueModels.get(viewHolder.getAdapterPosition()).getId(),domesticValueModels.get(viewHolder.getAdapterPosition()).getPriority(),domesticValueModels.get(target.getAdapterPosition()).getPriority());
+                    return true;
+                }
+
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    //TODO
+                    Toast.makeText(context, ""+viewHolder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                }
+
+                //defines the enabled move directions in each state (idle, swiping, dragging).
+                @Override
+                public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                    return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG,
+                            ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END | ItemTouchHelper.RIGHT);
+                }
+            };
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(ithCallback);
+            itemTouchHelper.attachToRecyclerView(recyclerView);
+            }else {
+                Toast.makeText(context, "Please Check Your Network Connection", Toast.LENGTH_SHORT).show();
+            }
+        }
+// Extend the Callback class
+
+       /*ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                //Toast.makeText(getActivity(), "Item removed ", Toast.LENGTH_SHORT).show();
+                //Remove swiped item from list and notify the RecyclerView
+                int position = viewHolder.getAdapterPosition();
+                removealert(domesticValueModels.get(position).getId());
+
+
+            }
+
+
+        };
+
+        ItemTouchHelper itemTouchHelper1 = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper1.attachToRecyclerView(recyclerView);*/
+
+        /*ItemTouchHelper.Callback callback =
+                new ItemMoveCallback(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(recyclerView);*/
         return rootView;
+    }
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
     }
 
     private void initList() {
         if (IS_ADMIN){
-            urlJsonObj = "http://tradewatch.xyz/getDomesticPriceAdmin.php";
+            urlJsonObj = "http://tradewatch.xyz/api/getDomesticPriceAdmin.php";
             getdomesticcategorylist("g*Rg3I0");
         }else{
-            urlJsonObj = "http://tradewatch.xyz/getDomesticPrice.php";
+            urlJsonObj = "http://tradewatch.xyz/api/getDomesticPrice.php";
             getdomesticcategorylist(sharedPreferences.getString("token",""));
         }
 
@@ -135,10 +257,10 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
     }
     private void initList1() {
         if (IS_ADMIN){
-            urlJsonObj = "http://tradewatch.xyz/getDomesticPriceAdmin.php";
+            urlJsonObj = "http://tradewatch.xyz/api/getDomesticPriceAdmin.php";
             getdomesticcategorylist1("g*Rg3I0");
         }else{
-            urlJsonObj = "http://tradewatch.xyz/getDomesticPrice.php";
+            urlJsonObj = "http://tradewatch.xyz/api/getDomesticPrice.php";
             getdomesticcategorylist1(sharedPreferences.getString("token",""));
         }
 
@@ -155,6 +277,7 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
         if (IS_ADMIN) {
             adapter.setLongPressListener(this);
         }
+        adapter.setOnItemClickListener(this);
     }
 
     public void getdomesticcategorylist(final String token) {
@@ -162,12 +285,12 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
             refreshLayout.setRefreshing(false);
         }
         domesticValueModels.clear();
-        hud = KProgressHUD.create(getActivity())
+        /*hud = KProgressHUD.create(getContext())
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false)
                 .setLabel("Loading Data")
                 .show();
-
+*/
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
@@ -184,29 +307,38 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
 
 
                 try {
+                    domesticValueModels.clear();
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                     Calendar start = Calendar.getInstance();
                     JSONArray cast=response.getJSONArray("data");
                     for (int i=0; i<cast.length(); i++) {
                         JSONObject domcategory = cast.getJSONObject(i);
                         DomesticValueModel model    = new DomesticValueModel();
-                        if (IS_ADMIN)
+                        /*if (IS_ADMIN)
                         {
                             model.setId(domcategory.getString("id"));
                         }else {
                             model.setId("");
-                        }
-
+                        }*/
+                        model.setId(domcategory.getString("id"));
                         model.setProfit(Double.parseDouble(domcategory.getString("price_difference"))>=0);
                         model.setHeadText(domcategory.getString("main_title"));
                         model.setSubHeadText(domcategory.getString("sub_title"));
                         model.setValueText(domcategory.getString("price"));
+                        model.setValueSubText(domcategory.getString("udf1"));
+                        model.setPriority(domcategory.getString("priority"));
+
                        // model.setValueRateText(i+"%");
                         //model.setTime(String.valueOf(domcategory.getInt("time")));
-                        //String dateString = formatter.format(new Date(domcategory.getInt("time")));
+                        // String dateString = formatter.format(new Date(domcategory.getString("abstime")));
+                        if (domcategory.getString("abstime").equalsIgnoreCase("")){
+                            model.setTimetext(domcategory.getString("abstime"));
+                        }else {
+                            start.setTimeInMillis( Long.parseLong(domcategory.getString("abstime"))*1000L );
+                            //model.setTime(DateFormat.format("dd-MM-yyyy hh:mm:ss", start).toString());
+                            model.setTimetext(DateFormat.format("hh:mm:ss a dd-MMM-yyyy", start).toString());
+                        }
 
-                        //start.setTimeInMillis( domcategory.getInt("time")*1000L );
-                       //model.setTime(DateFormat.format("dd-MM-yyyy hh:mm:ss", start).toString());
                         model.setTime(domcategory.getString("time"));
                         model.setValueDiffText(domcategory.getString("price_difference"));
                         /*if (i%3==0){
@@ -215,18 +347,18 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
 
                         domesticValueModels.add(model);
                     }
-                    if (hud.isShowing()){
+                    /*if (hud.isShowing()){
                         hud.dismiss();
-                    }
+                    }*/
                 adapter.notifyDataSetChanged();
 
 
                 } catch (JSONException e) {
-
+                    Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
                     // progressBar.setVisibility(View.GONE);
-                    if (hud.isShowing()){
+                    /*if (hud.isShowing()){
                         hud.dismiss();
-                    }
+                    }*/
                 }
 
             }
@@ -236,9 +368,9 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
             public void onErrorResponse(VolleyError error) {
                 //progressBar.setVisibility(View.GONE);
                 // hide the progress dialog
-                if (hud.isShowing()){
+                /*if (hud.isShowing()){
                     hud.dismiss();
-                }
+                }*/
             }
 
         });
@@ -287,6 +419,15 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
                         model.setHeadText(domcategory.getString("main_title"));
                         model.setSubHeadText(domcategory.getString("sub_title"));
                         model.setValueText(domcategory.getString("price"));
+                        model.setValueSubText(domcategory.getString("udf1"));
+                        if (domcategory.getString("abstime").equalsIgnoreCase("")){
+                            model.setTimetext(domcategory.getString("abstime"));
+                        }else {
+                            start.setTimeInMillis( Long.parseLong(domcategory.getString("abstime"))*1000L );
+                            //model.setTime(DateFormat.format("dd-MM-yyyy hh:mm:ss", start).toString());
+                            model.setTimetext(DateFormat.format("hh:mm:ss a", start).toString());
+                        }
+
                         // model.setValueRateText(i+"%");
                         //model.setTime(String.valueOf(domcategory.getInt("time")));
                         //String dateString = formatter.format(new Date(domcategory.getInt("time")));
@@ -331,23 +472,24 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
     @Override
     public void onDomesticLongPressListener(String id) {
         // TODO: 9/2/2018 dialog
-        removealert(id);
+       // removealert(id);
     }
 
     private void removealert(final String position){
         new FancyGifDialog.Builder(getActivity())
-                .setTitle("Edit")
-                .setMessage("Do you really want to edit this commodity?")
+                .setTitle("Delete")
+                .setMessage("Do you really want to delete this commodity?")
                 .setNegativeBtnText("Cancel")
                 .setPositiveBtnBackground("#3fb551")
-                .setPositiveBtnText("Edit")
+                .setPositiveBtnText("Delete")
                 .setNegativeBtnBackground("#8b0101")
                 .setGifResource(R.drawable.delete)   //Pass your Gif here
                 .isCancellable(true)
                 .OnPositiveClicked(new FancyGifDialogListener() {
                     @Override
                     public void OnClick() {
-                        customalert(position);
+                        //customalert(position);
+                        deletedomestic("g*Rg3I0",position);
                         //Toast.makeText(MainActivity.this,"Ok",Toast.LENGTH_SHORT).show();
                         //adapter.removeItem(position);
                         //Toast.makeText(context, "item removed", Toast.LENGTH_SHORT).show();
@@ -357,20 +499,22 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
                     @Override
                     public void OnClick() {
                         //Toast.makeText(MainActivity.this,"Cancel",Toast.LENGTH_SHORT).show();
+                       // initList();
 
                     }
                 })
                 .build();
     }
 
-    public void editDomestic(final String token,String id,String price) {
+    public void changeDomesticOrder(final String token, final String id,final String old,final String newpos) {
 
-        String urlJsonObj = "http://tradewatch.xyz/editDomesticPrice.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/adjustDomesticPriority.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
             obj.put("id", id);
-            obj.put("price", price);
+            obj.put("old", old);
+            obj.put("new", newpos);
 
         } catch (JSONException e) {
         }
@@ -385,10 +529,13 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
                 try {
 
                     if (response.getString("responseStatus").equalsIgnoreCase("true")){
-                       getdomesticcategorylist(token);
+                        initList();
+                    }else {
+                        Toast.makeText(context, ""+response.getString("responseMessage"), Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (JSONException e) {
+                    Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
                     // progressBar.setVisibility(View.GONE);
                 }
 
@@ -397,6 +544,7 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
                 //progressBar.setVisibility(View.GONE);
                 // hide the progress dialog
             }
@@ -407,6 +555,235 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
 
 
     }
+    public void deletedomestic(final String token, final String id) {
+
+        String urlJsonObj = "http://tradewatch.xyz/api/deleteDomesticPrice.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
+            obj.put("id", id);
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+                try {
+
+                    if (response.getString("responseStatus").equalsIgnoreCase("true")){
+                        mFirebaseInstance = FirebaseDatabase.getInstance();
+                        mFirebaseDatabase = mFirebaseInstance.getReference("domestic");
+                        Domestic name=new Domestic();
+                        name.setName(id+""+token);
+                        mFirebaseDatabase.setValue(name);
+                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                        getdomesticcategorylist(token);
+                    }else {
+                        Toast.makeText(context, ""+response.getString("responseMessage"), Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
+    public void editDomestic(final String token, final String id, final String price,final String remarks) {
+
+        String urlJsonObj = "http://tradewatch.xyz/api/editDomesticPrice.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
+            obj.put("id", id);
+            obj.put("price", price);
+            obj.put("udf1", remarks);
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+                try {
+
+                    if (response.getString("responseStatus").equalsIgnoreCase("true")){
+                        mFirebaseInstance = FirebaseDatabase.getInstance();
+                        mFirebaseDatabase = mFirebaseInstance.getReference("domestic");
+                        Domestic name=new Domestic();
+                        name.setName(id+""+token+""+price);
+                        mFirebaseDatabase.setValue(name);
+                        mFirebaseDatabase1 = mFirebaseInstance.getReference("domesticupdate");
+                        Domesticflash domesticflash=new Domesticflash();
+                        domesticflash.setId(id);
+                        mFirebaseDatabase1.setValue(domesticflash);
+                       getdomesticcategorylist(token);
+                    }else {
+                        Toast.makeText(context, ""+response.getString("responseMessage"), Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
+    public void domesticflash(final String token, final String id) {
+
+        String urlJsonObj = "http://tradewatch.xyz/api/getDomesticFlash.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
+            obj.put("id", id);
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+                try {
+
+                    if (response.getString("responseStatus").equalsIgnoreCase("true")){
+                        JSONArray cast=response.getJSONArray("data");
+                        String price1="",price2="";
+                        for (int i=0; i<cast.length(); i++) {
+                            JSONObject domcategory = cast.getJSONObject(i);
+                            if (i==0){
+                               price1=domcategory.getString("price");
+                            }else {
+                                price2=domcategory.getString("price");
+
+                                flashupdate(response.getString("main_title"),response.getString("sub_title"),price2,price1);
+                            }
+
+                        }
+                    }else {
+                        Toast.makeText(context, ""+response.getString("responseMessage"), Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
+    public void getupdatelist(final String token, final String id, final ListView listview) {
+
+        String urlJsonObj = "http://tradewatch.xyz/api/getDomesticEditHistory.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
+            obj.put("id", id);
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+                listItems.clear();
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                    Calendar start = Calendar.getInstance();
+                    JSONArray cast=response.getJSONArray("data");
+                    for (int i=0; i<cast.length(); i++) {
+                        JSONObject domcategory = cast.getJSONObject(i);
+                        start.setTimeInMillis( Long.parseLong(domcategory.getString("time"))*1000L );
+                        //model.setTime(DateFormat.format("dd-MM-yyyy hh:mm:ss", start).toString());
+                        listItems.add("₹"+domcategory.getDouble("price")+"\t\t"+DateFormat.format("dd/MM/yyyy hh:mm:ss a", start).toString());
+                       // listItems.add(domcategory.getString("price"));
+                    }
+
+                    recentupdate=new ArrayAdapter<String>(getActivity(),
+                            android.R.layout.simple_list_item_1,
+                            listItems);
+                    listview.setAdapter(recentupdate);
+
+                } catch (JSONException e) {
+                    Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
+
     public void customalert(final String pos) {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -415,10 +792,13 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         final TextInputLayout inputLayout = dialog.findViewById(R.id.days);
-
+        final TextInputLayout remark = dialog.findViewById(R.id.remarks);
         final EditText reasonText = dialog.findViewById(R.id.daysedit);
-
+        remark.setVisibility(View.VISIBLE);
         reasonText.setHint("Price");
+        reasonText.setText(domesticValueModels.get(Integer.parseInt(pos)).getValueText());
+
+        remark.getEditText().setText(domesticValueModels.get(Integer.parseInt(pos)).getValueSubText());
 
         Button okButton = (Button) dialog.findViewById(R.id.ok_button);
         Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
@@ -434,12 +814,103 @@ public class DomesticTab extends Fragment implements DomesticLongPressListener {
             @Override
             public void onClick(View v) {
                 String price = inputLayout.getEditText().getText().toString();
-                editDomestic("g*Rg3I0", pos, price);
+                String remarks = remark.getEditText().getText().toString();
+                editDomestic("g*Rg3I0", domesticValueModels.get(Integer.parseInt(pos)).getId(), price,remarks);
 
                 dialog.dismiss();
             }
         });
 
         dialog.show();
+    }
+    public void flashupdate(String head,String sub,String priceold,String pricenew) {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.domesticflashalert);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        final TextView heading=(TextView)dialog.findViewById(R.id.heading);
+        final TextView price=(TextView)dialog.findViewById(R.id.price);
+        Typeface regular = Typeface.createFromAsset(getActivity().getAssets(), "AnjaliOldLipi.ttf");
+
+        heading.setTypeface(regular);
+        price.setTypeface(regular);
+        heading.setText(head+"\n"+sub);
+        price.setText("Price changed from "+priceold+" to "+pricenew);
+        Button okButton = (Button) dialog.findViewById(R.id.ok_button);
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+    public void editHistoty(final String pos) {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.domesticdetailalert);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        final TextView heading=(TextView)dialog.findViewById(R.id.heading);
+        final TextView subheading=(TextView)dialog.findViewById(R.id.subheading);
+        final TextView date=(TextView)dialog.findViewById(R.id.date);
+        final TextView price=(TextView)dialog.findViewById(R.id.price);
+        final ListView listView=(ListView) dialog.findViewById(R.id.listview);
+        heading.setText(domesticValueModels.get(Integer.parseInt(pos)).getHeadText());
+        subheading.setText(domesticValueModels.get(Integer.parseInt(pos)).getSubHeadText());
+        date.setText(domesticValueModels.get(Integer.parseInt(pos)).getTime());
+        price.setText("Price :"+domesticValueModels.get(Integer.parseInt(pos)).getValueText());
+        getupdatelist("g*Rg3I0",domesticValueModels.get(Integer.parseInt(pos)).getId(),listView);
+
+        Button okButton = (Button) dialog.findViewById(R.id.ok_button);
+        Button delete = (Button) dialog.findViewById(R.id.delete);
+        Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
+        if (IS_ADMIN){
+            cancelButton.setVisibility(View.VISIBLE);
+            delete.setVisibility(View.VISIBLE);
+        }else {
+            cancelButton.setVisibility(View.GONE);
+            delete.setVisibility(View.GONE);
+        }
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removealert(domesticValueModels.get(Integer.parseInt(pos)).getId());
+                dialog.dismiss();
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customalert(pos);
+
+                dialog.dismiss();
+            }
+        });
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+    @Override
+    public void onItemClick(View view, int position) {
+        switch (view.getId())
+        {
+            case R.id.linear1:
+
+                editHistoty(String.valueOf(position));
+                break;
+        }
     }
 }

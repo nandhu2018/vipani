@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/navigationBarColor"
     tools:context=".fragments.NewsTab">
     <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
@@ -12,6 +13,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/news_recycler"
-            android:padding="10dp" />
+            android:padding="5dp" />
     </android.support.v4.widget.SwipeRefreshLayout>
 </FrameLayout>

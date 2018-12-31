@@ -1,6 +1,7 @@
 package com.gigaappz.vipani.adapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -100,7 +101,9 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
             newsPic = itemView.findViewById(R.id.news_image_card_view_news);
             newsHead= itemView.findViewById(R.id.news_head_card_view_news);
             author  = itemView.findViewById(R.id.author_text);
-
+            Typeface regular = Typeface.createFromAsset(context.getAssets(), "AnjaliOldLipi.ttf");
+            //newsHead.setTypeface(regular,Typeface.BOLD);
+            author.setTypeface(regular);
             if (AppConstants.IS_ADMIN) {
                 itemView.setOnLongClickListener(this);
             }

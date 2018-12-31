@@ -1,12 +1,23 @@
 package com.gigaappz.vipani.models;
 
 public class UserModel {
+
+    private String userid;
     private String userMobile;
     private String dateRemains;
     private String registeredOn;
     private String purchasedOn;
     private String expiredon;
     private int userStatus;
+
+
+    public String getUserid() {
+        return userid;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
 
     public String getDateRemains() {
         return dateRemains;

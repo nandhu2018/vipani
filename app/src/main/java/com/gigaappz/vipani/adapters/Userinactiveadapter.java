@@ -55,7 +55,8 @@ public class Userinactiveadapter extends RecyclerView.Adapter<Userinactiveadapte
         PersonUtils pu = personUtils.get(position);
 
         holder.pName.setText(pu.getPersonName());
-        holder.pName.setText(pu.getPersonName());
+        holder.name.setText(pu.getName());
+        holder.place.setText(pu.getCompany()+","+pu.getPlace());
         holder.disablereason.setVisibility(View.VISIBLE);
         holder.buttonlayout.setVisibility(View.GONE);
         holder.dor.setText(pu.getDor());
@@ -71,7 +72,7 @@ public class Userinactiveadapter extends RecyclerView.Adapter<Userinactiveadapte
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
 
-        public EditText pName;
+        public EditText pName,name,place,company;
         public TextView pJobProfile,disablereason;
         public EditText dor,dop,doe,remain;
         public LinearLayout buttonlayout;
@@ -81,6 +82,8 @@ public class Userinactiveadapter extends RecyclerView.Adapter<Userinactiveadapte
             super(itemView);
 
             pName = (EditText) itemView.findViewById(R.id.mobile_text);
+            name = (EditText) itemView.findViewById(R.id.name_text);
+            place = (EditText) itemView.findViewById(R.id.place_text);
             //pJobProfile = (TextView) itemView.findViewById(R.id.mobile_text);
             disablereason = (TextView) itemView.findViewById(R.id.disable_reason);
             dor = (EditText) itemView.findViewById(R.id.date_registration);

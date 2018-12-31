@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:id="@+id/linear1"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+
     android:padding="2dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:id="@+id/card_layout"
-        android:paddingBottom="0dp"
-        android:weightSum="10">
+        android:layout_marginTop="3dp"
+        android:paddingBottom="0dp">
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -24,6 +26,7 @@
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
         <LinearLayout
+            android:id="@+id/linear"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -45,6 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
+            android:layout_marginRight="10dp"
             android:orientation="vertical"
             android:paddingRight="10dp">
             <TextView
@@ -59,17 +63,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/value_sub_text_domestic"
+                android:textColor="@color/textColorBlack"
                 android:textSize="13sp"
                 android:textStyle="normal"
+                android:text="Buyer"
                 android:gravity="end"
                 android:layout_gravity="end"
-                android:visibility="gone"/>
+                android:visibility="visible"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_weight="2"
+            android:visibility="gone"
             android:paddingLeft="10dp">
             <TextView
                 android:layout_width="wrap_content"
@@ -86,21 +93,44 @@
                 android:id="@+id/value_diff_text_domestic"
                 android:textSize="13sp"
                 android:textStyle="normal"
+                android:visibility="gone"
                 android:gravity="end"
                 android:layout_gravity="end"/>
         </LinearLayout>
     </LinearLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/news_time_text_domestic"
         android:typeface="monospace"
         android:text="12:37 01/09/2018"
+        android:layout_alignParentEnd="true"
         android:padding="5dp"
         android:textSize="11sp"
         android:textColor="@color/colorPrimaryDark"
         android:gravity="end"
+        android:visibility="gone"
         android:layout_gravity="end"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/timetext"
+        android:typeface="monospace"
+        android:gravity="center"
+        android:layout_toLeftOf="@id/news_time_text_domestic"
+        android:layout_marginRight="20dp"
+        android:text="Last Updated On:12:47:00"
+        android:textStyle="bold"
+        android:layout_alignParentEnd="true"
+        android:padding="5dp"
+        android:textSize="11sp"
+        android:textColor="@color/colorPrimaryDark"
+        />
+    </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0.2dp"

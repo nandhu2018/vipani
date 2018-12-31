@@ -11,6 +11,27 @@ public class DomesticValueModel {
     private String valueDiffText;
     private String time;
 
+
+    private String priority;
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+    public String getTimetext() {
+        return timetext;
+    }
+
+    public void setTimetext(String timetext) {
+        this.timetext = timetext;
+    }
+
+    private String timetext;
+
+
     public String getTime() {
         return time;
     }

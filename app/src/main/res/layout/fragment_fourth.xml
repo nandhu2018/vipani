@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.ContactUsTab">
-    <android.support.v4.widget.SwipeRefreshLayout
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:src="@mipmap/vipani"/>
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/fragment_fourth_refresh_layout">
-        <!-- TODO: Update blank fragment layout -->
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+        <View
+            android:layout_width="match_parent"
+            android:layout_marginTop="10dp"
+            android:background="@color/textColorBlack"
+            android:layout_height="1dp"/>
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/hello_blank_fragment" />
-    </android.support.v4.widget.SwipeRefreshLayout>
-</FrameLayout>
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColorBlack"
+            android:textStyle="italic"
+            android:drawableLeft="@drawable/location"
+            android:layout_margin="20dp"
+            android:text="@string/contactdetails"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_marginTop="10dp"
+            android:background="@color/textColorBlack"
+            android:layout_height="1dp"/>
+        <Button
+            android:id="@+id/call"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="Call"
+            android:background="#FF33C104"
+            android:drawableLeft="@drawable/phone"/>
+    </LinearLayout>
+
+</RelativeLayout>

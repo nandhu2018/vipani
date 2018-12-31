@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,8 +28,14 @@ import com.gigaappz.vipani.adapters.UserRecyclerAdapter;
 import com.gigaappz.vipani.adapters.Userpendingadapter;
 import com.gigaappz.vipani.interfaces.UserLongPressListener;
 import com.gigaappz.vipani.interfaces.myListener;
+import com.gigaappz.vipani.models.Domestic;
 import com.gigaappz.vipani.models.UserModel;
 import com.gigaappz.vipani.utils.AppConstants;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
@@ -61,6 +68,8 @@ public class Userspending extends Fragment implements UserLongPressListener {
     KProgressHUD hud;
     TextView nocontent;
     SwipeRefreshLayout refreshLayout;
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
     public long dayleft=0;
     public Userspending() {
         // Required empty public constructor
@@ -80,8 +89,22 @@ public class Userspending extends Fragment implements UserLongPressListener {
         recyclerView    = rootView.findViewById(R.id.user_recycler);
         nocontent    = rootView.findViewById(R.id.nocontent);
         refreshLayout = rootView.findViewById(R.id.user_inactive_refresh_layout);
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+        mFirebaseDatabase = mFirebaseInstance.getReference("user");
 
-        initList();
+        mFirebaseDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Domestic domestic=dataSnapshot.getValue(Domestic.class);
+                initList();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        //initList();
 
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -91,9 +114,9 @@ public class Userspending extends Fragment implements UserLongPressListener {
         });
 
         //Adding Data into ArrayList
-        if (AppConstants.IS_ADMIN) {
+      /*  if (AppConstants.IS_ADMIN) {
             mAdapter.setOnLongPressListener(this);
-        }
+        }*/
         myListener=new myListener() {
             @Override
             public void updateView(boolean success, String message) {
@@ -132,12 +155,12 @@ public class Userspending extends Fragment implements UserLongPressListener {
             refreshLayout.setRefreshing(false);
         }
         personUtilsList.clear();
-        hud = KProgressHUD.create(getActivity())
+        /*hud = KProgressHUD.create(getActivity())
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false)
                 .setLabel("Loading Data")
-                .show();
-        String urlJsonObj = "http://tradewatch.xyz/pendingPaymentUsers.php";
+                .show();*/
+        String urlJsonObj = "http://tradewatch.xyz/api/pendingPaymentUsers.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
@@ -168,6 +191,7 @@ public class Userspending extends Fragment implements UserLongPressListener {
                         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
                         String dateToStr = format.format(today);
                         JSONArray cast = response.getJSONArray("data");
+                        personUtilsList.clear();
                         for (int i = 0; i < cast.length(); i++) {
                             JSONObject users = cast.getJSONObject(i);
                             String paydate = "";
@@ -184,21 +208,21 @@ public class Userspending extends Fragment implements UserLongPressListener {
 
 
                             String dayleft = getDaysBetweenDates(dateToStr, payexp);
-                            personUtilsList.add(new PersonUtils(users.getString("user_id"), "", joined, "Nil", "Nil", dayleft + " Days Left"));
+                            personUtilsList.add(new PersonUtils(users.getString("mobile"), "", joined, "Nil", "Nil", dayleft + " Days Left",users.getString("id"),users.getString("name"),users.getString("place"),users.getString("shop_name")));
                         }
                         mAdapter.notifyDataSetChanged();
                     }
-                    if (hud.isShowing()){
+                   /* if (hud.isShowing()){
                         hud.dismiss();
-                    }
+                    }*/
 
 
                 } catch (JSONException e) {
 
                     // progressBar.setVisibility(View.GONE);
-                    if (hud.isShowing()){
+                    /*if (hud.isShowing()){
                         hud.dismiss();
-                    }
+                    }*/
                 }
 
             }
@@ -208,9 +232,9 @@ public class Userspending extends Fragment implements UserLongPressListener {
             public void onErrorResponse(VolleyError error) {
                 //progressBar.setVisibility(View.GONE);
                 // hide the progress dialog
-                if (hud.isShowing()){
+               /* if (hud.isShowing()){
                     hud.dismiss();
-                }
+                }*/
             }
 
         });

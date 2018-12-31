@@ -2,6 +2,7 @@ package com.gigaappz.vipani.models;
 
 public class ForeignValueModel {
     private boolean isProfit;
+    private String id;
     private String headText;
     private String subHeadText;
     private String valueText;
@@ -9,6 +10,17 @@ public class ForeignValueModel {
     private String valueRateText;
     private String valueDiffText;
     private String time;
+
+    public String getTimetext() {
+        return timetext;
+    }
+
+    public void setTimetext(String timetext) {
+        this.timetext = timetext;
+    }
+
+    private String timetext;
+
 
     public String getTime() {
         return time;
@@ -72,5 +84,13 @@ public class ForeignValueModel {
 
     public void setValueSubText(String valueSubText) {
         this.valueSubText = valueSubText;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

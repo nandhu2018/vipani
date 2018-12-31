@@ -31,7 +31,10 @@ import com.gigaappz.vipani.activity.NewMarketActivity;
 import com.gigaappz.vipani.fragments.Userspending;
 import com.gigaappz.vipani.interfaces.RefreshUsersList;
 import com.gigaappz.vipani.interfaces.UserLongPressListener;
+import com.gigaappz.vipani.models.Domestic;
 import com.gigaappz.vipani.utils.AppConstants;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
 
@@ -47,7 +50,8 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
 
     private Context context;
     private List<PersonUtils> personUtils;
-
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
     public Userpendingadapter(){}
 
     public Userpendingadapter(Context context, List personUtils) {
@@ -69,6 +73,8 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
         PersonUtils pu = personUtils.get(position);
 
         holder.pName.setText(pu.getPersonName());
+        holder.name.setText(pu.getName());
+        holder.place.setText(pu.getCompany()+","+pu.getPlace());
         holder.disablereason.setVisibility(View.GONE);
         holder.buttonlayout.setVisibility(View.VISIBLE);
         holder.dor.setText(pu.getDor());
@@ -78,13 +84,13 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
         holder.accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                customalert("Days",personUtils.get(position).getPersonName());
+                customalert("Days",personUtils.get(position).getId());
             }
         });
         holder.reject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                customalert1("Reject Reason",personUtils.get(position).getPersonName());
+                customalert1("Reject Reason",personUtils.get(position).getId());
             }
         });
 
@@ -99,7 +105,7 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
 
-        public EditText pName;
+        public EditText pName,name,place,company;
         public TextView pJobProfile,disablereason;
         public EditText dor,dop,doe,remain;
         public LinearLayout buttonlayout;
@@ -109,6 +115,8 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
             super(itemView);
 
             pName = (EditText) itemView.findViewById(R.id.mobile_text);
+            name = (EditText) itemView.findViewById(R.id.name_text);
+            place = (EditText) itemView.findViewById(R.id.place_text);
             //pJobProfile = (TextView) itemView.findViewById(R.id.mobile_text);
             disablereason = (TextView) itemView.findViewById(R.id.disable_reason);
             dor = (EditText) itemView.findViewById(R.id.date_registration);
@@ -140,13 +148,13 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
             return true;
         }
     }
-    public void remuser(final String token,String userid,String days) {
+    public void remuser(final String token, final String userid, final String days) {
 
-        String urlJsonObj = "http://tradewatch.xyz/extendValidity.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/extendValidity.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
-            obj.put("user_id", userid);
+            obj.put("id", userid);
             obj.put("days", days);
 
         } catch (JSONException e) {
@@ -162,6 +170,11 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
                 try {
 
                     if (response.getString("responseStatus").equalsIgnoreCase("true")){
+                        mFirebaseInstance = FirebaseDatabase.getInstance();
+                        mFirebaseDatabase = mFirebaseInstance.getReference("user");
+                        Domestic name=new Domestic();
+                        name.setName(userid+""+days);
+                        mFirebaseDatabase.setValue(name);
                         AppConstants.SELECTED_TAB=2;
                         //// TODO: 10-Oct-18 interface
                         refreshUsersList.onUserListRefresh();
@@ -187,13 +200,13 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
 
 
     }
-    public void remuser1(final String token,String userid,String comment) {
+    public void remuser1(final String token, final String userid, final String comment) {
 
-        String urlJsonObj = "http://tradewatch.xyz/blockUser.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/blockUser.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
-            obj.put("user_id", userid);
+            obj.put("id", userid);
             obj.put("comment", comment);
 
         } catch (JSONException e) {
@@ -209,6 +222,11 @@ public class Userpendingadapter extends RecyclerView.Adapter<Userpendingadapter.
                 try {
 
                     if (response.getString("responseStatus").equalsIgnoreCase("true")){
+                        mFirebaseInstance = FirebaseDatabase.getInstance();
+                        mFirebaseDatabase = mFirebaseInstance.getReference("user");
+                        Domestic name=new Domestic();
+                        name.setName(userid+""+comment);
+                        mFirebaseDatabase.setValue(name);
                         AppConstants.SELECTED_TAB=2;
                         // TODO: 10-Oct-18 interface remove
                         refreshUsersList.onUserListRefresh();

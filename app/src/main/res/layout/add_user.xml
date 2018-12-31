@@ -64,7 +64,66 @@
             android:layout_centerInParent="true"
             android:orientation="vertical"
             android:layout_below="@+id/head_text_add_user">
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:textColorHint="#000"
+                android:layout_height="wrap_content">
 
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="#000"
+                    android:hint="Name"
+                    android:inputType="number"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    android:textSize="16dp" />
+
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/company"
+                android:layout_width="match_parent"
+                android:textColorHint="#000"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="#000"
+                    android:hint="Company"
+                    android:inputType="number"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    android:textSize="16dp" />
+
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/place"
+                android:layout_width="match_parent"
+                android:textColorHint="#000"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="#000"
+                    android:hint="Place"
+                    android:inputType="number"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    android:textSize="16dp" />
+
+            </android.support.design.widget.TextInputLayout>
 
 
             <android.support.design.widget.TextInputLayout

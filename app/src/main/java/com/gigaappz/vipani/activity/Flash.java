@@ -33,7 +33,7 @@ import static com.gigaappz.vipani.utils.AppConstants.IS_ADMIN;
 
 public class Flash extends AppCompatActivity {
     ProgressBar progressBar;
-    SharedPreferences sharedPreferences, sharedPreferences1, sharedPreferences2;
+        SharedPreferences sharedPreferences, sharedPreferences1, sharedPreferences2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,12 @@ public class Flash extends AppCompatActivity {
         String pin = sharedPreferences.getString("pin", "");
         //Toast.makeText(this, "" + mob + pin, Toast.LENGTH_SHORT).show();
         progressBar.setVisibility(View.GONE);
-        new Handler().postDelayed(new Runnable() {
+        if (isNetworkConnected()) {
+            logcheck();
+        } else {
+            internetError();
+        }
+       /* new Handler().postDelayed(new Runnable() {
 
             @Override
             public void run() {
@@ -59,7 +64,7 @@ public class Flash extends AppCompatActivity {
 
 
             }
-        }, 2000);
+        }, 1000);*/
 
     }
     private void logcheck() {
@@ -108,7 +113,7 @@ public class Flash extends AppCompatActivity {
 
     public void makeJsonRequest(final String token) {
 
-        String urlJsonObj = "http://tradewatch.xyz/regularLogin.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/regularLogin.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);

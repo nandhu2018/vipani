@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.gigaappz.vipani.activity.Login;
-import com.gigaappz.vipani.activity.Main2Activity;
+import com.gigaappz.vipani.activity.Registration;
 
 public class Mainpage extends AppCompatActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
     Button login,register;
@@ -30,7 +30,7 @@ public class Mainpage extends AppCompatActivity implements ConnectivityReceiver.
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Mainpage.this,Main2Activity.class));
+                startActivity(new Intent(Mainpage.this,Registration.class));
                 finish();
             }
         });

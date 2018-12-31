@@ -3,6 +3,15 @@ package com.gigaappz.vipani.models;
 import java.io.Serializable;
 
 public class NewsValueModel implements Serializable {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    private String id;
     private String picURL;
     private String newsHead;
     private String newsContent;

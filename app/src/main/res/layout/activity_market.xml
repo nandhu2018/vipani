@@ -16,13 +16,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
+            android:background="@color/colorAccent"
             android:layout_centerInParent="true">
             <RelativeLayout
                 android:id="@+id/first_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#fff">
+                android:layout_weight="1">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -30,15 +30,14 @@
                     android:text="Market"
                     android:textSize="12sp"
                     android:layout_centerInParent="true"
-                    android:textColor="#000"
-                    android:drawableTop="@drawable/bar_chart_15x15"/>
+                    android:textColor="#fff"
+                    android:drawableTop="@drawable/barblack"/>
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/second_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#fff">
+                android:layout_weight="1">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -46,15 +45,38 @@
                     android:text="News"
                     android:textSize="12sp"
                     android:layout_centerInParent="true"
-                    android:textColor="#000"
-                    android:drawableTop="@drawable/news_icon_15x15"/>
+                    android:textColor="#fff"
+                    android:drawableTop="@drawable/newsblack"/>
+                <TextView
+                    android:id="@+id/badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitStart"
+                    android:layout_marginRight="0dp"
+                    android:padding="1dp"
+                    android:background="@drawable/badge"
+                    android:gravity="center"
+                    android:minWidth="13sp"
+                    android:adjustViewBounds="true"
+                    android:minHeight="13sp"
+                    android:paddingBottom="1dp"
+                    android:layout_toRightOf="@id/news_text"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text=""
+                    android:textColor="#ffffffff"
+                    android:textSize="1sp"
+                    android:visibility="gone"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_alignParentTop="true"
+                    />
+
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/third_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#fff">
+                android:layout_weight="1">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -62,15 +84,14 @@
                     android:text="Users"
                     android:textSize="12sp"
                     android:layout_centerInParent="true"
-                    android:textColor="#000"
-                    android:drawableTop="@drawable/news_icon_15x15"/>
+                    android:textColor="#fff"
+                    android:drawableTop="@drawable/userblack"/>
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/fourth_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#fff">
+                android:layout_weight="1">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -78,8 +99,8 @@
                     android:text="Contact Us"
                     android:textSize="12sp"
                     android:layout_centerInParent="true"
-                    android:textColor="#000"
-                    android:drawableTop="@drawable/news_icon_15x15"/>
+                    android:textColor="#fff"
+                    android:drawableTop="@drawable/contactblack"/>
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
@@ -145,15 +166,16 @@
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/navigationBarColor"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     </android.support.design.widget.CoordinatorLayout>
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/fab_base"
-        android:background="@color/colorPrimary1"
-        android:src="@drawable/plus"
+        android:id="@+id/fab2"
+        android:background="@color/textColorBlack"
+        android:src="@drawable/pluswhite"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
@@ -162,5 +184,6 @@
         android:layout_marginBottom="@dimen/fab_bottom_margin"
         app:pressedTranslationZ="12dp"
         app:elevation="6dp"
-        />
+        tools:ignore="RelativeOverlap" />
+
 </RelativeLayout>

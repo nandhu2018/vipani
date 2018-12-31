@@ -101,7 +101,7 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
 
     public void makeJsonRequest(final String mobile, final String pin) {
 
-        String urlJsonObj = "http://tradewatch.xyz/login.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/login.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", "qp^&#ss");

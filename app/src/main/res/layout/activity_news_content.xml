@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        android:layout_height="40dp"
+        android:src="@drawable/back"/>
     <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_below="@id/back"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/news_content_refresh_layout">
@@ -14,4 +23,4 @@
             android:id="@+id/webview"
             android:padding="10dp"/>
     </android.support.v4.widget.SwipeRefreshLayout>
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

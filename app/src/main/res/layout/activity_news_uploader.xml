@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/head_text_add_user"
-                android:background="#bbd28c8c"
+                android:background="#bbfdf6f6"
                 android:orientation="horizontal"
                 android:padding="10dp">
 
@@ -123,7 +123,7 @@
                         android:layout_marginTop="10dp"
                         android:backgroundTint="#000"
                         android:singleLine="true"
-                        android:hint="News Title"
+                        android:hint=""
                         android:textColor="#000"
                         android:textColorHint="#000"
                         android:textSize="16dp" />
@@ -160,7 +160,10 @@
                         android:backgroundTint="#000"
                         android:hint="News description"
                         android:textColor="#000"
-
+                        android:overScrollMode="always"
+                        android:inputType="textMultiLine"
+                        android:scrollbarStyle="insideInset"
+                        android:scrollbars="vertical"
                         android:textColorHint="#000"
                         android:textSize="16dp" />
 

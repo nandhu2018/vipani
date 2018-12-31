@@ -23,6 +23,19 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/daysedit"
                 android:hint=""
+                android:digits="1234567890."
+                android:padding="15dp"
+                android:maxLines="4"/>
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:id="@+id/remarks">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/remark"
                 android:padding="15dp"
                 android:maxLines="4"/>
         </android.support.design.widget.TextInputLayout>

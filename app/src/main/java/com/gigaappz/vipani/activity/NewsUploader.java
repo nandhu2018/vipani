@@ -27,6 +27,7 @@ import com.gigaappz.vipani.AppController;
 import com.gigaappz.vipani.ConnectivityReceiver;
 import com.gigaappz.vipani.FirebaseManupulator;
 import com.gigaappz.vipani.R;
+import com.gigaappz.vipani.models.Domestic;
 import com.gigaappz.vipani.models.DomesticValueModel;
 import com.gigaappz.vipani.models.NewsValueModel;
 import com.gigaappz.vipani.utils.AppConstants;
@@ -77,6 +78,8 @@ public class NewsUploader extends AppCompatActivity implements View.OnClickListe
     String titlefromurl,imgfromurl;
     private int GALLERY_ACTIVITY_CODE = 200;
     private final int RESULT_CROP = 400;
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
     //FirebaseStorage storage;
     //StorageReference storageReference;
     @Override
@@ -154,7 +157,7 @@ public class NewsUploader extends AppCompatActivity implements View.OnClickListe
                 firstValue.setVisibility(View.VISIBLE);
                 secondValue.setVisibility(View.VISIBLE);
                 thirdValue.setVisibility(View.VISIBLE);
-
+                firstValue.setHint("News Title");
                 newsFrom    = NEWS_FROM_DEVICE;
 
                 fromURL.setBackgroundColor(getResources().getColor(R.color.cardview_light_background));
@@ -166,6 +169,7 @@ public class NewsUploader extends AppCompatActivity implements View.OnClickListe
                 secondValue.setVisibility(View.GONE);
                 thirdValue.setVisibility(View.GONE);
 
+                firstValue.setHint("Paste your URL");
                 newsFrom    = NEWS_FROM_URL;
 
                 fromURL.setBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
@@ -375,8 +379,8 @@ public class NewsUploader extends AppCompatActivity implements View.OnClickListe
         //AppController.getInstance().setConnectivityListener(this);
     }
 
-    public void addNews(final String token,String type,String title,String author,String body,String image,String url) {
-        String  urlJsonObj = "http://tradewatch.xyz/addNews.php";
+    public void addNews(final String token, String type, final String title, final String author, String body, String image, String url) {
+        String  urlJsonObj = "http://tradewatch.xyz/api/addNews.php";
         hud = KProgressHUD.create(NewsUploader.this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false)
@@ -406,6 +410,12 @@ public class NewsUploader extends AppCompatActivity implements View.OnClickListe
 
                 try {
                     if (response.getString("responseStatus").equalsIgnoreCase("true")){
+
+                        mFirebaseInstance = FirebaseDatabase.getInstance();
+                        mFirebaseDatabase = mFirebaseInstance.getReference("news1");
+                        Domestic name=new Domestic();
+                        name.setName(title+""+author);
+                        mFirebaseDatabase.setValue(name);
                         Toasty.success(NewsUploader.this,"News Added", Toast.LENGTH_SHORT, true).show();
                         //todo check if error
                         toMarketActivity();

@@ -2,6 +2,9 @@ package com.gigaappz.vipani.activity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,16 +16,20 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
+import android.text.method.DigitsKeyListener;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -36,6 +43,7 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +64,7 @@ import com.gigaappz.vipani.fragments.AddUser;
 import com.gigaappz.vipani.fragments.ContactUsTab;
 import com.gigaappz.vipani.fragments.DomesticTab;
 import com.gigaappz.vipani.fragments.ForeignTab;
+import com.gigaappz.vipani.fragments.Foreignweb;
 import com.gigaappz.vipani.fragments.Inactive;
 import com.gigaappz.vipani.fragments.NewsTab;
 import com.gigaappz.vipani.fragments.UsersTab;
@@ -64,10 +73,19 @@ import com.gigaappz.vipani.interfaces.NewDomesticDataSaved;
 import com.gigaappz.vipani.interfaces.NewUserDataAdded;
 import com.gigaappz.vipani.interfaces.NewsItemSelected;
 import com.gigaappz.vipani.interfaces.RefreshUsersList;
+import com.gigaappz.vipani.models.BadgeView;
+import com.gigaappz.vipani.models.Domestic;
+import com.gigaappz.vipani.models.Domesticflash;
 import com.gigaappz.vipani.models.NewsValueModel;
 import com.gigaappz.vipani.models.UserModel;
 import com.gigaappz.vipani.utils.AppConstants;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.robertlevonyan.views.customfloatingactionbutton.FloatingLayout;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
 
@@ -86,8 +104,10 @@ import es.dmoral.toasty.Toasty;
 import in.galaxyofandroid.spinerdialog.OnSpinerItemClick;
 import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
+import static com.gigaappz.vipani.utils.AppConstants.CHANNEL_ID;
 import static com.gigaappz.vipani.utils.AppConstants.IS_ADMIN;
 import static com.gigaappz.vipani.utils.AppConstants.SELECTED_TAB;
+import static java.security.AccessController.getContext;
 
 public class NewMarketActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener,
@@ -96,6 +116,7 @@ public class NewMarketActivity extends AppCompatActivity
     private ViewPager viewPager;
     private final int FIRST_BUTTON = 0, SECOND_BUTTON = 1, THIRD_BUTTON = 2, FOURTH_BUTTON = 3, FAB = 4;
     private Context context;
+    int position = 0;
     ArrayList<String> items = new ArrayList<>();
     public static Typeface regular, bold, italics, boldItalics;
     //    public static int selectedTab = 0;
@@ -103,14 +124,17 @@ public class NewMarketActivity extends AppCompatActivity
     private RelativeLayout secondButton;
     private RelativeLayout thirdButton;
     private RelativeLayout fourthButton;
-    SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences, sharednews;
     private RelativeLayout iconGroup, drawer1;
     private TabLayout tabLayout;
-    private FloatingActionButton fab;
+    private FloatingActionButton fab, fab1, fab2;
     private TextView contactText, profilename;
     SpinnerDialog spinnerDialog;
     TextView marketText, newsText, userText, appTitleText;
+    private DatabaseReference mFirebaseDatabase, mFirebaseDatabase1;
+    private FirebaseDatabase mFirebaseInstance;
     String strName = "";
+    TextView badge;
 
     //    private View adminPanel;
     @Override
@@ -120,18 +144,91 @@ public class NewMarketActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar1);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        badge = (TextView) findViewById(R.id.badge);
         sharedPreferences = getSharedPreferences("login", Context.MODE_PRIVATE);
+        sharednews = getSharedPreferences("news", Context.MODE_PRIVATE);
+        mFirebaseInstance = FirebaseDatabase.getInstance();
         if (IS_ADMIN) {
             toolbar1.setVisibility(View.GONE);
             setSupportActionBar(toolbar);
+
+
+
         } else {
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             toolbar.setVisibility(View.GONE);
             setSupportActionBar(toolbar1);
+
+            mFirebaseDatabase1 = mFirebaseInstance.getReference("domesticupdate");
+            mFirebaseDatabase1.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    Domesticflash domestic = dataSnapshot.getValue(Domesticflash.class);
+                    //Toast.makeText(NewMarketActivity.this, ""+domestic.getId(), Toast.LENGTH_SHORT).show();
+                    domesticflash("g*Rg3I0", domestic.getId());
+
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
 
-        requestpermission();
-        getallcontacts();
+        // requestpermission();
+        //getallcontacts();
+
+        mFirebaseDatabase = mFirebaseInstance.getReference("news1");
+
+        mFirebaseDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Domestic domestic = dataSnapshot.getValue(Domestic.class);
+                if (sharednews.contains("news")) {
+                    if (sharednews.getString("news", "").equalsIgnoreCase(domestic.getName())) {
+                        badge.setVisibility(View.GONE);
+                    } else {
+                        badge.setVisibility(View.VISIBLE);
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(NewMarketActivity.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.news_icon_15x15)
+                                .setContentTitle("Vipani- News Updated")
+                                .setContentText(domestic.getName())
+                                .setColor(Color.parseColor("#009add"))
+                                .setAutoCancel(true);
+
+                        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+                        AppConstants.SELECTED_TAB = 1;
+                        PendingIntent contentIntent =
+                                PendingIntent.getActivity(NewMarketActivity.this, 0, new Intent(NewMarketActivity.this, NewMarketActivity.class), 0);
+                        mBuilder.setContentIntent(contentIntent);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, "vipani", NotificationManager.IMPORTANCE_HIGH);
+
+                            notificationManager.createNotificationChannel(mChannel);
+                        }
+
+                        notificationManager.notify(0, mBuilder.build());
+                        SharedPreferences.Editor editor1 = getSharedPreferences("news", MODE_PRIVATE).edit();
+                        editor1.putString("news", domestic.getName());
+                        editor1.apply();
+                    }
+                } else {
+                    SharedPreferences.Editor editor1 = getSharedPreferences("news", MODE_PRIVATE).edit();
+                    editor1.putString("news", domestic.getName());
+                    editor1.apply();
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         new Userpendingadapter().onRefreshUsersList(this);
 
@@ -178,7 +275,11 @@ public class NewMarketActivity extends AppCompatActivity
         //profilename= (TextView) findViewById(R.id.profile_name);
         userText = findViewById(R.id.user_text);
         appTitleText = findViewById(R.id.app_title_text);
-        fab = findViewById(R.id.fab_base);
+        fab = findViewById(R.id.fab2);
+   /*     fab1 = findViewById(R.id.fab2);
+        fab2 = findViewById(R.id.fab3);
+        final FloatingLayout floatingLayout = findViewById(R.id.floating_layout);
+       */
 //        adminPanel      = findViewById(R.id.admin_panel);
 
 //        initViewAdminPanel();
@@ -202,6 +303,22 @@ public class NewMarketActivity extends AppCompatActivity
         contactText.setTypeface(bold);
         userText.setTypeface(bold);
         appTitleText.setTypeface(bold);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                position = tab.getPosition();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         if (IS_ADMIN) {
             fab.setVisibility(View.VISIBLE);
@@ -245,6 +362,7 @@ public class NewMarketActivity extends AppCompatActivity
         };
         timer.schedule(doAsynchronousTask, 0, 10000);*/
 
+
     }
 
 
@@ -280,15 +398,17 @@ public class NewMarketActivity extends AppCompatActivity
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 thirdButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 fourthButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));*/
-                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.bar_chart, 0, 0);
-                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
+                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.barwhite, 0, 0);
+                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.contactblack, 0, 0);
+                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.userblack, 0, 0);
+                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.newsblack, 0, 0);
                 adapter.addFragment(new DomesticTab(), "Domestic");
-                adapter.addFragment(new ForeignTab(), "Foreign");
+                adapter.addFragment(new Foreignweb(), "International");
                 tabLayout.setVisibility(View.VISIBLE);
                 if (IS_ADMIN) {
+
                     fab.setVisibility(View.VISIBLE);
+
                     thirdButton.setVisibility(View.VISIBLE);
                     fourthButton.setVisibility(View.GONE);
                 }
@@ -297,19 +417,24 @@ public class NewMarketActivity extends AppCompatActivity
                 secondButton.setVisibility(View.VISIBLE);
 
                 AppConstants.SELECTED_TAB = FIRST_BUTTON;
+
+                //View v = getActionBar().getTabAt(0).getCustomView();
+               /* BadgeView badge1 = new BadgeView(NewMarketActivity.this, adapter.getItem(0).getView());
+                badge1.setText("1");
+                badge1.show();*/
                 break;
             case SECOND_BUTTON:
                 thirdButton.setVisibility(View.GONE);
-
+                badge.setVisibility(View.GONE);
                 fourthButton.setVisibility(View.VISIBLE);
                 /*firstButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorGray));
                 thirdButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 fourthButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));*/
-                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.newspaper, 0, 0);
-                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.bar_chart_15x15, 0, 0);
+                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.newswhite, 0, 0);
+                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.contactblack, 0, 0);
+                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.userblack, 0, 0);
+                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.barblack, 0, 0);
                 adapter.addFragment(new NewsTab(), "NEWS");
                 if (IS_ADMIN) {
                     fab.setVisibility(View.VISIBLE);
@@ -331,10 +456,10 @@ public class NewMarketActivity extends AppCompatActivity
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 thirdButton.setBackgroundColor(getResources().getColor(R.color.textColorGray));
                 fourthButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));*/
-                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.more, 0, 0);
-                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.bar_chart_15x15, 0, 0);
+                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.userwhite, 0, 0);
+                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.contactblack, 0, 0);
+                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.newsblack, 0, 0);
+                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.barblack, 0, 0);
                 adapter.addFragment(new UsersTab(), "Active\nUsers");
                 adapter.addFragment(new Inactive(), "Inactive\nUsers");
                 adapter.addFragment(new Userspending(), "Pending\nRequest");
@@ -357,10 +482,10 @@ public class NewMarketActivity extends AppCompatActivity
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 thirdButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 fourthButton.setBackgroundColor(getResources().getColor(R.color.textColorGray));*/
-                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.more, 0, 0);
-                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.news_icon_15x15, 0, 0);
-                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.bar_chart_15x15, 0, 0);
+                contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.contactwhite, 0, 0);
+                userText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.userblack, 0, 0);
+                newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.newsblack, 0, 0);
+                marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.barblack, 0, 0);
                 if (IS_ADMIN) {
                     fab.setVisibility(View.VISIBLE);
                     thirdButton.setVisibility(View.VISIBLE);
@@ -377,8 +502,16 @@ public class NewMarketActivity extends AppCompatActivity
                 break;
             case FAB:
                 if (AppConstants.SELECTED_TAB == FIRST_BUTTON) {
-                    startActivity(new Intent(NewMarketActivity.this, AddDomestic.class));
-                    finish();
+
+
+                    /*if (position == 0) {*/
+                        startActivity(new Intent(NewMarketActivity.this, AddDomestic.class));
+                        finish();
+                   /* } else {
+                        startActivity(new Intent(NewMarketActivity.this, AddForeign.class));
+                        finish();
+                    }*/
+
                     //adapter.addFragment(new AddDomesticValues(), "Add new notification");
                 } else if (AppConstants.SELECTED_TAB == SECOND_BUTTON) {
                     startActivity(new Intent(NewMarketActivity.this, NewsUploader.class));
@@ -407,6 +540,111 @@ public class NewMarketActivity extends AppCompatActivity
         viewPager.setAdapter(adapter);
     }
 
+
+    public void domesticflash(final String token, final String id) {
+
+        String urlJsonObj = "http://tradewatch.xyz/api/getDomesticFlash.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
+            obj.put("id", id);
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+                try {
+
+                    if (response.getString("responseStatus").equalsIgnoreCase("true")) {
+                        JSONArray cast = response.getJSONArray("data");
+                        String price1 = "", price2 = "";
+                        for (int i = 0; i < cast.length(); i++) {
+                            JSONObject domcategory = cast.getJSONObject(i);
+                            if (i == 0) {
+                                price1 = domcategory.getString("price");
+                            } else {
+                                price2 = domcategory.getString("price");
+
+                                SharedPreferences sharedPreferences= getSharedPreferences("flashdetails", Context.MODE_PRIVATE);
+                                if (sharedPreferences.contains("flash")){
+                                    if (!sharedPreferences.getString("flash","").equalsIgnoreCase(id+price2+"")){
+                                        SharedPreferences.Editor editor = getSharedPreferences("flashdetails", MODE_PRIVATE).edit();
+                                        editor.putString("flash",id+price2+"");
+                                        editor.apply();
+                                        flashupdate(response.getString("main_title"), response.getString("sub_title"), price2, price1);
+                                    }
+                                }else {
+                                    SharedPreferences.Editor editor = getSharedPreferences("flashdetails", MODE_PRIVATE).edit();
+                                    editor.putString("flash",id+price2+"");
+                                    editor.apply();
+                                    flashupdate(response.getString("main_title"), response.getString("sub_title"), price2, price1);
+                                }
+
+                            }
+
+                        }
+                    } else {
+                        Toast.makeText(context, "" + response.getString("responseMessage"), Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    Toast.makeText(context, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
+
+    public void flashupdate(String head, String sub, String priceold, String pricenew) {
+        final Dialog dialog = new Dialog(NewMarketActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.domesticflashalert);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        final TextView heading = (TextView) dialog.findViewById(R.id.heading);
+        final TextView price = (TextView) dialog.findViewById(R.id.price);
+        Typeface regular = Typeface.createFromAsset(getAssets(), "AnjaliOldLipi.ttf");
+
+        heading.setTypeface(regular);
+        price.setTypeface(regular);
+        heading.setText(head + "\n" + sub);
+        price.setText("Price changed from " + priceold + " to " + pricenew);
+        Button okButton = (Button) dialog.findViewById(R.id.ok_button);
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                dialog.dismiss();
+            }
+        });
+        if (!isFinishing()){
+            dialog.show();
+        }
+
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -426,7 +664,7 @@ public class NewMarketActivity extends AppCompatActivity
 
                 setUpViewPager(FOURTH_BUTTON);
                 break;
-            case R.id.fab_base:
+            case R.id.fab2:
 
                 setUpViewPager(FAB);
                 break;
@@ -548,8 +786,10 @@ public class NewMarketActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.new_market, menu);
         if (IS_ADMIN) {
             menu.findItem(R.id.search).setVisible(true);
+            menu.findItem(R.id.action_settings).setVisible(false);
         } else {
             menu.findItem(R.id.search).setVisible(false);
+            menu.findItem(R.id.action_settings).setVisible(true);
         }
 
 
@@ -563,14 +803,10 @@ public class NewMarketActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
         if (id == R.id.search) {
 
-
-            spinnerDialog = new SpinnerDialog(NewMarketActivity.this, items, "Select or Search User", R.style.DialogAnimations_SmileWindow, "Close");// With 	Animation
+            searchalert();
+           /* spinnerDialog = new SpinnerDialog(NewMarketActivity.this, items, "Select or Search User", R.style.DialogAnimations_SmileWindow, "Close");// With 	Animation
             spinnerDialog.bindOnSpinerListener(new OnSpinerItemClick() {
                 @Override
                 public void onClick(String item, int position) {
@@ -582,14 +818,57 @@ public class NewMarketActivity extends AppCompatActivity
                     //selectedItems.setText(item + " Position: " + position);
                 }
             });
-            spinnerDialog.showSpinerDialog();
+            spinnerDialog.showSpinerDialog();*/
+            return true;
+        }
+        if (id == R.id.action_settings) {
+
+            startActivity(new Intent(NewMarketActivity.this,Settings.class));
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public void searchalert() {
+        final Dialog dialog = new Dialog(NewMarketActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.customalert);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        final TextInputLayout inputLayout = dialog.findViewById(R.id.days);
+        final TextInputLayout remark = dialog.findViewById(R.id.remarks);
+        final EditText reasonText = dialog.findViewById(R.id.daysedit);
+        // remark.setVisibility(View.VISIBLE);
+        reasonText.setHint("Search Here");
+        reasonText.setKeyListener(DigitsKeyListener.getInstance("asdfghjklqwertyuiopzxcvbnmZXCVBNMASDFGHJKLQWERTYUIOP., 1234567890"));
+        Button okButton = (Button) dialog.findViewById(R.id.ok_button);
+        Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String term = inputLayout.getEditText().getText().toString();
+                Intent intent = new Intent(NewMarketActivity.this, SearchResult.class);
+                intent.putExtra("query", term);
+                startActivity(intent);
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
     private void getDetailsFromID(String userid) {
-        String urlJsonObj = "http://tradewatch.xyz/searchUser.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/searchUser.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", "g*Rg3I0");
@@ -616,9 +895,9 @@ public class NewMarketActivity extends AppCompatActivity
                         //String joined = formatter.format(new Date(data.getInt("joined_on")));
                         //String paymentdate = formatter.format(new Date(data.getInt("payment_date")));
                         //String expiry = formatter.format(new Date(data.getInt("payment_expiry")));
-                        start.setTimeInMillis( data.getInt("joined_on")*1000L );
-                        start1.setTimeInMillis( data.getInt("payment_date")*1000L );
-                        start2.setTimeInMillis( data.getInt("payment_expiry")*1000L );
+                        start.setTimeInMillis(data.getInt("joined_on") * 1000L);
+                        start1.setTimeInMillis(data.getInt("payment_date") * 1000L);
+                        start2.setTimeInMillis(data.getInt("payment_expiry") * 1000L);
                         model.setRegisteredOn(DateFormat.format("dd-MM-yyyy hh:mm:ss", start).toString());
                         model.setPurchasedOn(DateFormat.format("dd-MM-yyyy hh:mm:ss", start1).toString());
                         model.setExpiredon(DateFormat.format("dd-MM-yyyy hh:mm:ss", start2).toString());
@@ -741,7 +1020,7 @@ public class NewMarketActivity extends AppCompatActivity
 
     public void makeadmin(final String token, String userid) {
 
-        String urlJsonObj = "http://tradewatch.xyz/makeAsAdmin.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/makeAsAdmin.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
@@ -891,7 +1170,12 @@ public class NewMarketActivity extends AppCompatActivity
             public void onClick(View v) {
                 String reason = reasonText.getText().toString();
                 // TODO: 10/2/2018 upload reason to firebase adddomesticcategories
-                addcategory(reason);
+                if (reasonText.getText().toString().equalsIgnoreCase("")) {
+                    reasonText.setError("Enter Category Name");
+                } else {
+                    addcategory(reason);
+                }
+
                 dialog.dismiss();
             }
         });
@@ -934,10 +1218,11 @@ public class NewMarketActivity extends AppCompatActivity
         AppController.getInstance().addToRequestQueue(request);
 
     }
+
     private void addcategory(String name) {
         SharedPreferences sharedPreferences = getSharedPreferences("token", Context.MODE_PRIVATE);
 
-        String url = "http://tradewatch.xyz/addDomesticCategories.php";
+        String url = "http://tradewatch.xyz/api/addDomesticCategories.php";
         JSONObject object = new JSONObject();
         try {
             //object.put("auth",sharedPreferences.getString("token",""));
@@ -950,7 +1235,7 @@ public class NewMarketActivity extends AppCompatActivity
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    if (response.getString("responseStatus").equalsIgnoreCase("true")){
+                    if (response.getString("responseStatus").equalsIgnoreCase("true")) {
                         Toasty.success(NewMarketActivity.this, "Category added", Toast.LENGTH_SHORT, true).show();
                     }
                 } catch (JSONException e) {
@@ -1067,7 +1352,7 @@ public class NewMarketActivity extends AppCompatActivity
         super.onResume();
 
         // register connection status listener
-       // AppController.getInstance().setConnectivityListener(this);
+        // AppController.getInstance().setConnectivityListener(this);
     }
 
     /**
@@ -1085,4 +1370,13 @@ public class NewMarketActivity extends AppCompatActivity
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+ /*   @Override
+    protected void onNewIntent(Intent intent) {
+
+        processIntent(intent);
+    };
+
+    private void processIntent(Intent intent){
+
+    }*/
 }

@@ -16,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,8 @@ import com.gigaappz.vipani.interfaces.myListener;
 import com.gigaappz.vipani.models.DomesticValueModel;
 import com.gigaappz.vipani.models.UserModel;
 import com.gigaappz.vipani.utils.AppConstants;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
 import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
@@ -70,6 +73,8 @@ public class UsersTab extends Fragment implements UserLongPressListener {
     RecyclerView.LayoutManager layoutManager;
     SwipeRefreshLayout refreshLayout;
     TextView nocontent;
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
     List<PersonUtils> personUtilsList;
     public static List<UserModel> userModels = new ArrayList<>();
     public UsersTab(){
@@ -157,12 +162,12 @@ public class UsersTab extends Fragment implements UserLongPressListener {
             refreshLayout.setRefreshing(false);
         }
         personUtilsList.clear();
-        hud = KProgressHUD.create(getActivity())
+       /* hud = KProgressHUD.create(getActivity())
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false)
                 .setLabel("Loading Data")
-                .show();
-        String urlJsonObj = "http://tradewatch.xyz/activeUsers.php";
+                .show();*/
+        String urlJsonObj = "http://tradewatch.xyz/api/activeUsers.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
@@ -216,21 +221,21 @@ public class UsersTab extends Fragment implements UserLongPressListener {
 
 
                             String dayleft = getDaysBetweenDates(dateToStr, payexp);
-                            personUtilsList.add(new PersonUtils(users.getString("user_id"), "", joined, payexp, paydate, dayleft + " Days Left"));
+                            personUtilsList.add(new PersonUtils(users.getString("mobile"), "", joined, payexp, paydate, dayleft + " Days Left",users.getString("id"),users.getString("name"),users.getString("place"),users.getString("shop_name")));
                         }
                         mAdapter.notifyDataSetChanged();
                     }
-                    if (hud.isShowing()){
+                    /*if (hud.isShowing()){
                         hud.dismiss();
-                    }
+                    }*/
 
 
                 } catch (JSONException e) {
 
                     // progressBar.setVisibility(View.GONE);
-                    if (hud.isShowing()){
+                    /*if (hud.isShowing()){
                         hud.dismiss();
-                    }
+                    }*/
                 }
 
             }
@@ -240,9 +245,9 @@ public class UsersTab extends Fragment implements UserLongPressListener {
             public void onErrorResponse(VolleyError error) {
                 //progressBar.setVisibility(View.GONE);
                 // hide the progress dialog
-                if (hud.isShowing()){
+               /* if (hud.isShowing()){
                     hud.dismiss();
-                }
+                }*/
             }
 
         });
@@ -252,11 +257,11 @@ public class UsersTab extends Fragment implements UserLongPressListener {
 
     public void remuser(final String token,String userid,String reason) {
 
-        String urlJsonObj = "http://tradewatch.xyz/blockUser.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/blockUser.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
-            obj.put("user_id", userid);
+            obj.put("id", userid);
             obj.put("comment", reason);
 
         } catch (JSONException e) {
@@ -345,11 +350,11 @@ public class UsersTab extends Fragment implements UserLongPressListener {
     }
     public void makeadmin(final String token,String userid) {
 
-        String urlJsonObj = "http://tradewatch.xyz/makeAsAdmin.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/makeAsAdmin.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
-            obj.put("user_id", userid);
+            obj.put("id", userid);
 
         } catch (JSONException e) {
         }
@@ -398,7 +403,8 @@ public class UsersTab extends Fragment implements UserLongPressListener {
 
         final EditText reasonText = dialog.findViewById(R.id.daysedit);
 
-        reasonText.setHint("");
+        reasonText.setHint("Enter Reason");
+        reasonText.setKeyListener(DigitsKeyListener.getInstance("asdfghjklqwertyuiopzxcvbnmZXCVBNMASDFGHJKLQWERTYUIOP., "));
 
         Button okButton = (Button) dialog.findViewById(R.id.ok_button);
         Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
@@ -436,7 +442,7 @@ public class UsersTab extends Fragment implements UserLongPressListener {
                     public void OnClick() {
                         //Toast.makeText(MainActivity.this,"Ok",Toast.LENGTH_SHORT).show();
 
-                        customalert(personUtilsList.get(position).getPersonName());
+                        customalert(personUtilsList.get(position).getId());
                         //mAdapter.removeItem(position);
                         //Toast.makeText(context, "item removed", Toast.LENGTH_SHORT).show();
                     }
@@ -445,7 +451,7 @@ public class UsersTab extends Fragment implements UserLongPressListener {
                     @Override
                     public void OnClick() {
 
-                          makeadmin("g*Rg3I0",personUtilsList.get(position).getPersonName());
+                          makeadmin("g*Rg3I0",personUtilsList.get(position).getId());
                         //Toast.makeText(MainActivity.this,"Cancel",Toast.LENGTH_SHORT).show();
                     }
                 })

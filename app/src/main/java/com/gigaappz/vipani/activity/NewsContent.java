@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gigaappz.vipani.AppController;
@@ -27,6 +28,7 @@ public class NewsContent extends AppCompatActivity implements ConnectivityReceiv
         setContentView(R.layout.activity_news_content);
 
         final WebView webView = findViewById(R.id.webview);
+        ImageView back = findViewById(R.id.back);
         SwipeRefreshLayout refreshLayout = findViewById(R.id.news_content_refresh_layout);
 
         webView.setWebViewClient(new CustomWebView());
@@ -38,7 +40,12 @@ public class NewsContent extends AppCompatActivity implements ConnectivityReceiv
         getNewsDetailsFromServer();
 
         webView.loadUrl(model.getNewsURL());
-
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
