@@ -128,7 +128,7 @@ public class NewMarketActivity extends AppCompatActivity
     private RelativeLayout iconGroup, drawer1;
     private TabLayout tabLayout;
     private FloatingActionButton fab, fab1, fab2;
-    private TextView contactText, profilename;
+    private TextView contactText, profilename,pendinguser;
     SpinnerDialog spinnerDialog;
     TextView marketText, newsText, userText, appTitleText;
     private DatabaseReference mFirebaseDatabase, mFirebaseDatabase1;
@@ -145,13 +145,16 @@ public class NewMarketActivity extends AppCompatActivity
         Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar1);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         badge = (TextView) findViewById(R.id.badge);
+        pendinguser=(TextView)findViewById(R.id.pendinguser);
+        pendinguser.setVisibility(View.GONE);
+
         sharedPreferences = getSharedPreferences("login", Context.MODE_PRIVATE);
         sharednews = getSharedPreferences("news", Context.MODE_PRIVATE);
         mFirebaseInstance = FirebaseDatabase.getInstance();
         if (IS_ADMIN) {
             toolbar1.setVisibility(View.GONE);
             setSupportActionBar(toolbar);
-
+            getpendingusers("g*Rg3I0");
 
 
         } else {
@@ -373,6 +376,75 @@ public class NewMarketActivity extends AppCompatActivity
         ActivityCompat.requestPermissions(NewMarketActivity.this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 2);
+    }
+    public void getpendingusers(final String token) {
+        /*hud = KProgressHUD.create(getActivity())
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setCancellable(false)
+                .setLabel("Loading Data")
+                .show();*/
+        String urlJsonObj = "http://tradewatch.xyz/api/pendingPaymentUsers.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
+
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+                try {
+
+                    if (response.getString("responseStatus").equalsIgnoreCase("false")) {
+                       pendinguser.setVisibility(View.GONE);
+                    } else{
+
+                        JSONArray cast = response.getJSONArray("data");
+                       if (cast.length()<=0){
+                           pendinguser.setVisibility(View.GONE);
+                       }else{
+                           pendinguser.setVisibility(View.VISIBLE);
+                           pendinguser.setText(" "+cast.length()+" ");
+                       }
+                    }
+                   /* if (hud.isShowing()){
+                        hud.dismiss();
+                    }*/
+
+
+                } catch (JSONException e) {
+                    Toast.makeText(NewMarketActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+                    /*if (hud.isShowing()){
+                        hud.dismiss();
+                    }*/
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(NewMarketActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+               /* if (hud.isShowing()){
+                    hud.dismiss();
+                }*/
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
     }
 
     private void setUpViewPager(int button) {

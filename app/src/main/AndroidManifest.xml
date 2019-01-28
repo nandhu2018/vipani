@@ -50,6 +50,14 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".activity.Forgotpwd"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.PinEnteringScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".activity.MarketActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -81,9 +89,7 @@
         <activity
             android:name=".activity.Pinreg"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.PinEnteringScreen"
-            android:screenOrientation="portrait" />
+
         <activity
             android:name=".Mainpage"
             android:screenOrientation="portrait" />

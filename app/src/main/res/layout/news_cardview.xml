@@ -22,7 +22,7 @@ android:paddingBottom="5dp">
         android:background="@color/colorTransBg">
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="200dp"
             android:id="@+id/news_image_card_view_news"
             android:background="@color/textColorGray"
             android:scaleType="fitXY"/>

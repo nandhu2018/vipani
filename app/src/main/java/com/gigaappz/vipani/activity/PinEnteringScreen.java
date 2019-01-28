@@ -39,6 +39,7 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
     private IndicatorDots mIndicatorDots;
     SharedPreferences sharedPreferences;
     KProgressHUD hud;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +54,7 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
         mPinLockView.attachIndicatorDots(mIndicatorDots);
         mPinLockView.setPinLockListener(mPinLockListener);
 
-        sharedPreferences=getSharedPreferences("login", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("login", Context.MODE_PRIVATE);
 
         //mPinLockView.setCustomKeySet(new int[]{2, 3, 1, 5, 9, 6, 7, 0, 8, 4});
         //mPinLockView.enableLayoutShuffling();
@@ -63,27 +64,14 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
         mIndicatorDots.setIndicatorType(IndicatorDots.IndicatorType.FILL_WITH_ANIMATION);
 
     }
+
     private PinLockListener mPinLockListener = new PinLockListener() {
         @Override
         public void onComplete(String pin) {
 
-            if (sharedPreferences.contains("pin")){
-                hud = KProgressHUD.create(PinEnteringScreen.this)
-                        .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                        .setCancellable(false)
-                        .setLabel("Verifying Pin")
-                        .show();
-                if (sharedPreferences.getString("pin","").equalsIgnoreCase(pin)){
 
-                    makeJsonRequest(sharedPreferences.getString("mobile",""),pin);
+            makeJsonRequest(getIntent().getStringExtra("mobile"), pin);
 
-                }else{
-                    if (hud.isShowing()){
-                        hud.dismiss();
-                    }
-                    Toasty.error(PinEnteringScreen.this, "Wrong pin", Toast.LENGTH_SHORT, true).show();
-                }
-            }
 
         }
 
@@ -94,18 +82,18 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
 
         @Override
         public void onPinChange(int pinLength, String intermediatePin) {
-            Log.d(TAG, "Pin changed, new length " + pinLength + " with intermediate pin " + intermediatePin);
+           // Log.d(TAG, "Pin changed, new length " + pinLength + " with intermediate pin " + intermediatePin);
         }
     };
 
 
     public void makeJsonRequest(final String mobile, final String pin) {
 
-        String urlJsonObj = "http://tradewatch.xyz/api/login.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/forgotPassword.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", "qp^&#ss");
-            obj.put("userId", mobile);
+            obj.put("mobile", mobile);
             obj.put("password", pin);
 
 
@@ -123,23 +111,16 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
                     // Parsing json object response
                     // response will be a json object
 
-                    boolean status=response.getBoolean("responseStatus");
-                    if (status){
-                        SharedPreferences.Editor editor = getSharedPreferences("token", MODE_PRIVATE).edit();
-                        editor.putString("token",response.getString("authToken"));
-                        editor.apply();
-                        if (hud.isShowing()){
-                            hud.dismiss();
-                        }
+                    //boolean status = response.getBoolean("responseStatus");
+                    if (response.getString("responseStatus").equalsIgnoreCase("true")) {
 
-                        Toasty.success(PinEnteringScreen.this, "Logged In", Toast.LENGTH_SHORT, true).show();
+
+                        Toasty.success(PinEnteringScreen.this, "Pin changed", Toast.LENGTH_SHORT, true).show();
                         // TODO: 09-Oct-18 updated
-                        startActivity(new Intent(PinEnteringScreen.this,NewMarketActivity.class));
+                        startActivity(new Intent(PinEnteringScreen.this, Login.class));
                         finish();
-                    }else {
-                        if (hud.isShowing()){
-                            hud.dismiss();
-                        }
+                    } else {
+
                         Toasty.error(PinEnteringScreen.this, "Failed", Toast.LENGTH_SHORT, true).show();
                     }
 
@@ -147,7 +128,7 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
                     //txtResponse.setText(jsonResponse);
 
                 } catch (JSONException e) {
-                    if (hud.isShowing()){
+                    if (hud.isShowing()) {
                         hud.dismiss();
                     }
                 }
@@ -157,7 +138,7 @@ public class PinEnteringScreen extends AppCompatActivity implements Connectivity
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (hud.isShowing()){
+                if (hud.isShowing()) {
                     hud.dismiss();
                 }
                 // hide the progress dialog
