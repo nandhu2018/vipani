@@ -30,6 +30,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.text.method.DigitsKeyListener;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -44,6 +45,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -124,6 +126,7 @@ public class NewMarketActivity extends AppCompatActivity
     private RelativeLayout secondButton;
     private RelativeLayout thirdButton;
     private RelativeLayout fourthButton;
+    LinearLayout usertab;
     SharedPreferences sharedPreferences, sharednews;
     private RelativeLayout iconGroup, drawer1;
     private TabLayout tabLayout;
@@ -133,8 +136,10 @@ public class NewMarketActivity extends AppCompatActivity
     TextView marketText, newsText, userText, appTitleText;
     private DatabaseReference mFirebaseDatabase, mFirebaseDatabase1;
     private FirebaseDatabase mFirebaseInstance;
+    TextView activebadge,inactivebadge,pendingbadge;
     String strName = "";
     TextView badge;
+    RelativeLayout active,inactive,pending;
 
     //    private View adminPanel;
     @Override
@@ -147,7 +152,13 @@ public class NewMarketActivity extends AppCompatActivity
         badge = (TextView) findViewById(R.id.badge);
         pendinguser=(TextView)findViewById(R.id.pendinguser);
         pendinguser.setVisibility(View.GONE);
-
+        usertab=(LinearLayout)findViewById(R.id.userstab);
+        activebadge=(TextView)findViewById(R.id.activebadge);
+        inactivebadge=(TextView)findViewById(R.id.inactivebadge);
+        pendingbadge=(TextView)findViewById(R.id.pendingbadge);
+        active=(RelativeLayout)findViewById(R.id.active);
+        inactive=(RelativeLayout)findViewById(R.id.inactive);
+        pending=(RelativeLayout)findViewById(R.id.pending);
         sharedPreferences = getSharedPreferences("login", Context.MODE_PRIVATE);
         sharednews = getSharedPreferences("news", Context.MODE_PRIVATE);
         mFirebaseInstance = FirebaseDatabase.getInstance();
@@ -155,6 +166,8 @@ public class NewMarketActivity extends AppCompatActivity
             toolbar1.setVisibility(View.GONE);
             setSupportActionBar(toolbar);
             getpendingusers("g*Rg3I0");
+            getactiveusers("g*Rg3I0");
+            getinactiveusers("g*Rg3I0");
 
 
         } else {
@@ -366,6 +379,32 @@ public class NewMarketActivity extends AppCompatActivity
         timer.schedule(doAsynchronousTask, 0, 10000);*/
 
 
+        active.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TabLayout.Tab tab = tabLayout.getTabAt(0);
+                tab.select();
+
+            }
+        });
+        inactive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TabLayout.Tab tab = tabLayout.getTabAt(1);
+                tab.select();
+
+            }
+        });
+        pending.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TabLayout.Tab tab = tabLayout.getTabAt(2);
+                tab.select();
+
+            }
+        });
+
+
     }
 
 
@@ -377,13 +416,13 @@ public class NewMarketActivity extends AppCompatActivity
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 2);
     }
-    public void getpendingusers(final String token) {
+    public void getactiveusers(final String token) {
         /*hud = KProgressHUD.create(getActivity())
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(false)
                 .setLabel("Loading Data")
                 .show();*/
-        String urlJsonObj = "http://tradewatch.xyz/api/pendingPaymentUsers.php";
+        String urlJsonObj = "http://tradewatch.xyz/api/activeUsers.php";
         JSONObject obj = new JSONObject();
         try {
             obj.put("auth", token);
@@ -402,16 +441,18 @@ public class NewMarketActivity extends AppCompatActivity
                 try {
 
                     if (response.getString("responseStatus").equalsIgnoreCase("false")) {
-                       pendinguser.setVisibility(View.GONE);
+                        pendinguser.setVisibility(View.GONE);
                     } else{
 
                         JSONArray cast = response.getJSONArray("data");
-                       if (cast.length()<=0){
-                           pendinguser.setVisibility(View.GONE);
-                       }else{
-                           pendinguser.setVisibility(View.VISIBLE);
-                           pendinguser.setText(" "+cast.length()+" ");
-                       }
+                        if (cast.length()<=0){
+                            pendinguser.setVisibility(View.GONE);
+                            activebadge.setVisibility(View.GONE);
+                        }else{
+                            pendinguser.setVisibility(View.GONE);
+                            activebadge.setVisibility(View.VISIBLE);
+                            activebadge.setText(" "+cast.length()+" ");
+                        }
                     }
                    /* if (hud.isShowing()){
                         hud.dismiss();
@@ -446,7 +487,148 @@ public class NewMarketActivity extends AppCompatActivity
 
 
     }
+    public void getinactiveusers(final String token) {
+        /*hud = KProgressHUD.create(getActivity())
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setCancellable(false)
+                .setLabel("Loading Data")
+                .show();*/
+        String urlJsonObj = "http://tradewatch.xyz/api/blockedUsers.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
 
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+                try {
+
+                    if (response.getString("responseStatus").equalsIgnoreCase("false")) {
+                        pendinguser.setVisibility(View.GONE);
+                    } else{
+
+                        JSONArray cast = response.getJSONArray("data");
+                        if (cast.length()<=0){
+                            pendinguser.setVisibility(View.GONE);
+                            inactivebadge.setVisibility(View.GONE);
+                        }else{
+                            pendinguser.setVisibility(View.GONE);
+                            inactivebadge.setVisibility(View.VISIBLE);
+                            inactivebadge.setText(" "+cast.length()+" ");
+                        }
+                    }
+                   /* if (hud.isShowing()){
+                        hud.dismiss();
+                    }*/
+
+
+                } catch (JSONException e) {
+                    Toast.makeText(NewMarketActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+                    /*if (hud.isShowing()){
+                        hud.dismiss();
+                    }*/
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(NewMarketActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+               /* if (hud.isShowing()){
+                    hud.dismiss();
+                }*/
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
+    public void getpendingusers(final String token) {
+        /*hud = KProgressHUD.create(getActivity())
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setCancellable(false)
+                .setLabel("Loading Data")
+                .show();*/
+        String urlJsonObj = "http://tradewatch.xyz/api/pendingPaymentUsers.php";
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("auth", token);
+
+
+        } catch (JSONException e) {
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
+                urlJsonObj, obj, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+
+                try {
+
+                    if (response.getString("responseStatus").equalsIgnoreCase("false")) {
+                        pendinguser.setVisibility(View.GONE);
+                    } else{
+
+                        JSONArray cast = response.getJSONArray("data");
+                        if (cast.length()<=0){
+                            pendinguser.setVisibility(View.GONE);
+                            pendingbadge.setVisibility(View.GONE);
+                        }else{
+                            pendinguser.setVisibility(View.GONE);
+                            pendingbadge.setVisibility(View.VISIBLE);
+                            pendingbadge.setText(" "+cast.length()+" ");
+                        }
+                    }
+                   /* if (hud.isShowing()){
+                        hud.dismiss();
+                    }*/
+
+
+                } catch (JSONException e) {
+                    Toast.makeText(NewMarketActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
+                    /*if (hud.isShowing()){
+                        hud.dismiss();
+                    }*/
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(NewMarketActivity.this, ""+error.getMessage(), Toast.LENGTH_SHORT).show();
+                //progressBar.setVisibility(View.GONE);
+                // hide the progress dialog
+               /* if (hud.isShowing()){
+                    hud.dismiss();
+                }*/
+            }
+
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
     private void setUpViewPager(int button) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         if (IS_ADMIN) {
@@ -464,7 +646,7 @@ public class NewMarketActivity extends AppCompatActivity
         switch (button) {
             case FIRST_BUTTON:
                 thirdButton.setVisibility(View.GONE);
-
+                usertab.setVisibility(View.GONE);
                 fourthButton.setVisibility(View.VISIBLE);
                 /*firstButton.setBackgroundColor(getResources().getColor(R.color.textColorGray));
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
@@ -498,6 +680,7 @@ public class NewMarketActivity extends AppCompatActivity
             case SECOND_BUTTON:
                 thirdButton.setVisibility(View.GONE);
                 badge.setVisibility(View.GONE);
+                usertab.setVisibility(View.GONE);
                 fourthButton.setVisibility(View.VISIBLE);
                 /*firstButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorGray));
@@ -522,7 +705,7 @@ public class NewMarketActivity extends AppCompatActivity
                 break;
             case THIRD_BUTTON:
                 thirdButton.setVisibility(View.GONE);
-
+                usertab.setVisibility(View.VISIBLE);
                 fourthButton.setVisibility(View.VISIBLE);
                 /*firstButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
@@ -532,10 +715,12 @@ public class NewMarketActivity extends AppCompatActivity
                 contactText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.contactblack, 0, 0);
                 newsText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.newsblack, 0, 0);
                 marketText.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.barblack, 0, 0);
-                adapter.addFragment(new UsersTab(), "Active\nUsers");
-                adapter.addFragment(new Inactive(), "Inactive\nUsers");
-                adapter.addFragment(new Userspending(), "Pending\nRequest");
+                adapter.addFragment(new UsersTab(), "");
+                adapter.addFragment(new Inactive(), "");
+                adapter.addFragment(new Userspending(), "");
+
                 tabLayout.setVisibility(View.VISIBLE);
+
                 if (IS_ADMIN) {
                     fab.setVisibility(View.VISIBLE);
                     thirdButton.setVisibility(View.VISIBLE);
@@ -548,7 +733,7 @@ public class NewMarketActivity extends AppCompatActivity
                 break;
             case FOURTH_BUTTON:
                 thirdButton.setVisibility(View.GONE);
-
+                usertab.setVisibility(View.GONE);
                 fourthButton.setVisibility(View.VISIBLE);
                /* firstButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
                 secondButton.setBackgroundColor(getResources().getColor(R.color.textColorWhite));
@@ -731,6 +916,17 @@ public class NewMarketActivity extends AppCompatActivity
             case R.id.third_button:
 
                 setUpViewPager(THIRD_BUTTON);
+               /* View tab1 = LayoutInflater.from(this).inflate(R.layout.customtab, null);
+                TextView textView=(TextView)tab1.findViewById(R.id.count2);
+                textView.setText("20");
+                tabLayout.removeTabAt(0);
+
+                tabLayout.getTabAt(0).setCustomView(tab1);
+                View tab2 = LayoutInflater.from(NewMarketActivity.this).inflate(R.layout.customtab2, null);
+                //tabLayout.removeTabAt(1);
+                tabLayout.getTabAt(1).setCustomView(tab2);*/
+             /*   View tab3 = LayoutInflater.from(NewMarketActivity.this).inflate(R.layout.customtab3, null);
+                tabLayout.getTabAt(2).setCustomView(tab3);*/
                 break;
             case R.id.fourth_button:
 

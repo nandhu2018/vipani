@@ -98,7 +98,7 @@
                     android:layout_marginTop="10dp"
                     android:backgroundTint="#000"
                     android:hint="Current rate"
-                    android:inputType="number"
+                    android:digits="1234567890/*-+."
                     android:singleLine="true"
                     android:textColor="#000"
                     android:textColorHint="#000"

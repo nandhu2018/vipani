@@ -92,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@id/user_text"
                     android:layout_toRightOf="@id/user_text"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     android:textColor="#FFF"
                     android:text="10"
                     android:textSize="12sp"
@@ -173,6 +173,107 @@
                 app:tabMode="fixed"
                 app:tabGravity="fill">
             </android.support.design.widget.TabLayout>
+            <LinearLayout
+                android:id="@+id/userstab"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:background="@color/textColorBlack"
+                android:layout_centerInParent="true">
+                <RelativeLayout
+                    android:id="@+id/active"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Active Users"
+                        android:id="@+id/actuser"
+                        android:textSize="12sp"
+                        android:layout_centerInParent="true"
+                        android:textColor="#fff"
+                        android:drawableTop="@drawable/userwhite"/>
+                    <TextView
+                        android:id="@+id/activebadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignTop="@id/actuser"
+                        android:layout_toRightOf="@id/actuser"
+                        android:visibility="visible"
+                        android:textColor="#000"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/badge_circle"/>
+                </RelativeLayout>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"/>
+                <RelativeLayout
+                    android:id="@+id/inactive"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/inactuser"
+                        android:text="Inactive Users"
+                        android:textSize="12sp"
+                        android:layout_centerInParent="true"
+                        android:textColor="#fff"
+                        android:drawableTop="@drawable/userwhite"/>
+                    <TextView
+                        android:id="@+id/inactivebadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignTop="@id/inactuser"
+                        android:layout_toRightOf="@id/inactuser"
+                        android:visibility="gone"
+                        android:textColor="#000"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/badge_circle"/>
+                </RelativeLayout>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"/>
+                <RelativeLayout
+                    android:id="@+id/pending"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pending Users"
+                        android:textSize="12sp"
+                        android:id="@+id/penduser"
+                        android:layout_centerInParent="true"
+                        android:textColor="#fff"
+                        android:drawableTop="@drawable/userwhite"/>
+                    <TextView
+                        android:id="@+id/pendingbadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignTop="@id/penduser"
+                        android:layout_toRightOf="@id/penduser"
+                        android:visibility="visible"
+                        android:textColor="#000"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/badge_circle"/>
+                </RelativeLayout>
+
+            </LinearLayout>
+
+
         </android.support.design.widget.AppBarLayout>
 
         <android.support.v4.view.ViewPager
